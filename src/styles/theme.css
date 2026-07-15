@@ -1,0 +1,36 @@
+:root { color: #f4f8ff; background: #020a25; }
+body {
+  position: relative;
+  background-color: #020a25;
+  background-image: linear-gradient(90deg, rgba(1,7,29,.08), rgba(1,7,29,.2)), url('../assets/ucl-starball-official.jpeg');
+  background-size: cover;
+  background-position: center top;
+  background-attachment: fixed;
+}
+body::before {
+  content: '';
+  position: fixed;
+  z-index: 0;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(circle at 78% 18%,rgba(78,212,255,.14),transparent 26%),linear-gradient(180deg,transparent 45%,rgba(1,6,28,.58) 100%);
+}
+.app-shell { position: relative; z-index: 1; min-height: 100vh; }
+.topbar { border-color: rgba(114,190,255,.2); }
+.brand { color: #fff; text-shadow: 0 2px 12px rgba(0,0,0,.8); }.brand__mark { background: linear-gradient(135deg,#1be3dc,#236cff); box-shadow: 0 0 20px rgba(27,211,231,.3); }
+.topbar .brand .brand__name { color: #fff; font-size: 21px; font-weight: 850; text-shadow: 0 2px 8px #02071d,0 0 16px rgba(255,255,255,.2); }
+.nav-links button { color: #9db2d8; }.nav-links button:hover,.nav-links button.active { background: rgba(57,142,255,.16); color: #66e8f1; }
+.score-pill { background: linear-gradient(135deg,#04bfb9,#2874ef); box-shadow: 0 7px 20px rgba(24,142,223,.25); }
+.progress-pill { background: rgba(21,58,120,.55); color: #8faad6; border: 1px solid rgba(103,180,255,.18); }.progress-pill strong { color: #fff; }
+.eyebrow,.step-label { color: #60e5ed; }.eyebrow span { background: #42e1e2; box-shadow: 0 0 10px #42e1e2; }
+h1,.decision-card h2,.complete-screen h1,.world-card h2 { color: #fff; }.lead,.hero-copy>p,.world-heading p,.complete-screen>p { color: #a8b7d4; }
+.decision-card,.complete-screen,.world-card { border-color: rgba(102,174,255,.2); background: linear-gradient(145deg,rgba(8,29,76,.88),rgba(3,14,47,.82)); box-shadow: 0 20px 50px rgba(0,4,24,.34); backdrop-filter: blur(14px); }
+.decision-card>p,.result>p { color: #aebcda; }.choice { border-color: rgba(89,170,255,.2); background: rgba(17,48,101,.7); color: #edf7ff; }.choice:hover { border-color: #46dfe7; box-shadow: 0 0 18px rgba(36,201,225,.2); }.choice__icon { background: rgba(36,177,218,.14); color: #5ee6ed; }
+.coach-tip,.pro-note { background: rgba(26,76,139,.35); color: #a8bddd; }.coach-tip strong,.pro-note strong { color: #effbff; }
+.next-button,.play-button { background: linear-gradient(135deg,#03bebb,#2871f0); box-shadow: 0 9px 25px rgba(19,133,223,.3); }.explore-button { border-color: rgba(91,190,244,.35); background: rgba(9,34,79,.7); color: #dffaff; }
+.legend { color: #a5b7d9; }.hero-copy h1 em { color: #58e3e9; }.hero-numbers span { color: #8fa5ca; }.hero-numbers strong { color: #fff; }
+.mini-pitch { border-color: rgba(133,219,255,.55); box-shadow: 0 28px 70px rgba(0,92,220,.3); }.floating-card { background: rgba(4,20,57,.94); color:#fff; border:1px solid rgba(76,197,255,.3); }.floating-card span,.floating-card small { color:#8da8d3; }.floating-card small { color:#49e4e7; }
+.world-tabs button { border-color: rgba(81,167,240,.25); background: rgba(8,29,72,.75); color:#a7b9db; }.world-tabs button.active { border-color:#37d9e1; background:linear-gradient(135deg,#04b7b5,#226ce6); color:#fff; }
+.world-avatar { box-shadow: 0 8px 22px rgba(0,0,0,.32); }.world-card p { color:#9dafcf; }.fact { color:#5be5e9; }.rank { color:rgba(120,174,235,.13); }.data-note { color:#8297bd; }.award-stamp { border-color:rgba(96,190,242,.3); color:#8ca7d2; }.award-stamp strong { color:#58e3e9; }
+.final-score { background:rgba(21,68,126,.45); color:#9eb1d3; }.final-score strong { color:#58e3e9; }
+@media(max-width:650px){.nav-links{border-color:rgba(83,167,239,.3);background:rgba(2,12,42,.94)}body{background-position:62% center}.app-shell{background:rgba(1,7,28,.2)}}
