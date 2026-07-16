@@ -16,21 +16,21 @@ const keeperPrediction = (history: Direction[]): Direction => {
   return all[Math.floor(Math.random() * all.length)];
 };
 
-export function PenaltyMind() {
+export function PenaltyMind({ onBack, onComplete }: { onBack?: () => void; onComplete?: () => void }) {
   const [selected, setSelected] = useState<Direction>('left');
   const [keeper, setKeeper] = useState<Direction | null>(null);
   const [history, setHistory] = useState<Direction[]>([]);
   const [score, setScore] = useState(0); const [round, setRound] = useState(1); const [finished, setFinished] = useState(false);
   const isGoal = keeper !== null && keeper !== selected;
   const shoot = () => { if (keeper) return; const guess = keeperPrediction(history); setKeeper(guess); setHistory((items) => [...items, selected]); if (guess !== selected) setScore((value) => value + 1); };
-  const next = () => { if (round === 5) return setFinished(true); setRound((value) => value + 1); setKeeper(null); };
+  const next = () => { if (round === 5) { onComplete?.(); return setFinished(true); } setRound((value) => value + 1); setKeeper(null); };
   const restart = () => { setSelected('left'); setKeeper(null); setHistory([]); setScore(0); setRound(1); setFinished(false); };
   const resultTitle = score >= 4 ? 'Мастер пенальти!' : score >= 2 ? 'Хорошая серия!' : 'Старайся лучше!';
   const resultText = score >= 4 ? 'Ты отлично менял направления и перехитрил вратаря.' : score >= 2 ? 'Неплохой результат. Меняй углы ударов, чтобы стать ещё опаснее.' : 'Вратарь разгадал твои удары. Не повторяй один угол и попробуй ещё раз!';
 
-  if (finished) return <section className="penalty-finish"><div>{score >= 4 ? '🏆' : score >= 2 ? '⚽' : '💪'}</div><span className="step-label">СЕРИЯ ЗАВЕРШЕНА</span><h1>{resultTitle}</h1><strong>{score} <small>/ 5</small></strong><p>{resultText}</p><button className="play-button" onClick={restart}>Сыграть ещё раз ↻</button></section>;
+  if (finished) return <section className="penalty-finish">{onBack&&<button className="game-back" onClick={onBack}>← Все игры</button>}<div>{score >= 4 ? '🏆' : score >= 2 ? '⚽' : '💪'}</div><span className="step-label">СЕРИЯ ЗАВЕРШЕНА</span><h1>{resultTitle}</h1><strong>{score} <small>/ 5</small></strong><p>{resultText}</p><button className="play-button" onClick={restart}>Сыграть ещё раз ↻</button></section>;
 
-  return <section className="penalty-screen">
+  return <section className="penalty-screen">{onBack&&<button className="game-back" onClick={onBack}>← Все игры</button>}
     <div className="penalty-heading"><div><div className="eyebrow"><span /> Мини-игра</div><h1>Penalty Mind</h1><p>Выбери угол и перехитри вратаря. Не бей постоянно в одно место!</p></div><div className="penalty-score"><span>Голы</span><strong>{score}</strong><small>Раунд {round} / 5</small></div></div>
     <div className="penalty-game"><div className="stadium-lights" /><div className="goal"><div className="goal-net" />
       <div className={`keeper ${keeper ? `keeper--${keeper}` : ''}`}><Goalkeeper /></div>

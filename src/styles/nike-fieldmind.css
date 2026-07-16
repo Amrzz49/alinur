@@ -1,0 +1,219 @@
+:root {
+  --sport-ink: #111;
+  --sport-white: #fff;
+  --sport-cloud: #f5f5f5;
+  --sport-muted: #707072;
+  --fieldmind-blue: #1151ff;
+  color: var(--sport-white);
+}
+
+body {
+  color: var(--sport-white);
+  background-color: #06123d;
+}
+
+.app-shell {
+  max-width: 1440px;
+  padding-inline: clamp(18px, 4vw, 64px);
+}
+
+.topbar {
+  height: 64px;
+  border-bottom: 1px solid rgba(255, 255, 255, .22);
+  background: rgba(4, 13, 49, .92);
+  box-shadow: none;
+}
+
+.brand {
+  color: #fff;
+  font-weight: 800;
+  letter-spacing: -.03em;
+}
+
+.brand__mark {
+  border-radius: 50%;
+  background: #fff;
+  color: #111;
+  box-shadow: none;
+}
+
+h1 {
+  font-family: Inter, Arial, sans-serif;
+  font-size: clamp(48px, 8vw, 96px);
+  font-weight: 900;
+  line-height: .9;
+  letter-spacing: -.045em;
+  text-transform: uppercase;
+}
+
+h2,
+h3,
+.decision-card h2 {
+  font-family: Inter, Arial, sans-serif;
+  font-weight: 700;
+}
+
+.eyebrow,
+.step-label {
+  color: #fff;
+  letter-spacing: .08em;
+}
+
+.eyebrow span { background: #fff; }
+.lead, .legend { color: rgba(255, 255, 255, .72); }
+
+.nav-links button {
+  min-height: 44px;
+  border-radius: 999px;
+  color: rgba(255, 255, 255, .76);
+  font-weight: 600;
+}
+
+.nav-links button:hover,
+.nav-links button.active {
+  background: #fff;
+  color: #111;
+}
+
+.progress-pill,
+.score-pill {
+  border-radius: 999px;
+  background: #fff;
+  color: #111;
+  box-shadow: none;
+}
+
+.progress-pill strong { color: #111; }
+
+.play-button,
+.next-button,
+.auth-submit,
+.choice,
+.explore-button,
+.google-button {
+  min-height: 48px;
+  border-radius: 999px;
+  box-shadow: none;
+  font-weight: 700;
+}
+
+.play-button,
+.next-button,
+.auth-submit {
+  border: 1px solid #111;
+  background: #111;
+  color: #fff;
+}
+
+.explore-button,
+.google-button,
+.choice {
+  border: 1px solid #cacacb;
+  background: #f5f5f5;
+  color: #111;
+}
+
+.play-button:hover,
+.next-button:hover,
+.auth-submit:hover,
+.choice:hover,
+.explore-button:hover,
+.google-button:hover {
+  opacity: .82;
+  box-shadow: none;
+  transform: none;
+}
+
+.decision-card,
+.complete-screen,
+.auth-card,
+.quiz-card {
+  border: 0;
+  border-radius: 0;
+  background: #fff;
+  color: #111;
+  box-shadow: none;
+}
+
+.decision-card > p,
+.result > p { color: #707072; }
+.decision-card .step-label { color: #1151ff; }
+
+.quiz-card h2 { color: #111; }
+
+.quiz-card .quiz-meta strong { color: #707072; }
+
+.quiz-card .quiz-meta span {
+  background: #e8eeff;
+  color: #0034e3;
+}
+
+.quiz-card .quiz-answers button {
+  border-color: #cacacb;
+  background: #f5f5f5;
+  color: #111;
+}
+
+.quiz-card .quiz-answers i {
+  background: #111;
+  color: #fff;
+}
+
+.quiz-card .quiz-answers button.correct {
+  border-color: #007d48;
+  background: #e4f5ec;
+  color: #064c30;
+}
+
+.quiz-card .quiz-answers button.wrong {
+  border-color: #d30005;
+  background: #fde8e8;
+  color: #780700;
+}
+
+.quiz-card .quiz-explanation {
+  background: #f5f5f5;
+  color: #111;
+}
+
+.quiz-card .quiz-explanation p { color: #4b4b4d; }
+
+.coach-tip,
+.pro-note,
+.final-score,
+.choice__icon {
+  border-radius: 18px;
+  background: #f5f5f5;
+  color: #39393b;
+}
+
+.game-card,
+.world-card,
+.player-card,
+.coach-card {
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.game-card:hover,
+.world-card:hover,
+.player-card:hover,
+.coach-card:hover {
+  box-shadow: none;
+  transform: none;
+}
+
+.game-library {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+@media (max-width: 960px) {
+  .game-library { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 650px) {
+  h1 { font-size: clamp(44px, 15vw, 64px); }
+  .nav-links { border-radius: 24px; background: #06123d; box-shadow: none; }
+  .game-library { grid-template-columns: 1fr; }
+}

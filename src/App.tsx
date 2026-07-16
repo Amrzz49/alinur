@@ -8,11 +8,13 @@ import { SiteHeader } from './components/SiteHeader';
 import { WorldScreen } from './components/WorldScreen';
 import { QuizScreen } from './components/QuizScreen';
 import { Auth } from './components/Auth';
-import { PenaltyMind } from './components/PenaltyMind';
+import { GamesScreen } from './components/GamesScreen';
 import { challenges, type ChoiceId } from './lib/challenges';
 import { supabase } from './lib/supabase';
+import { loadGameProfile, saveGameProfile } from './lib/gameWallet';
+import { FieldCapsMatch } from './components/FieldCapsMatch';
 
-export type Page = 'home' | 'training' | 'games' | 'quiz' | 'world' | 'auth';
+export type Page = 'home' | 'match' | 'training' | 'games' | 'quiz' | 'world' | 'auth';
 
 export default function App() {
   const [page, setPage] = useState<Page>('home');
@@ -21,6 +23,9 @@ export default function App() {
   const [score, setScore] = useState(0);
   const [finished, setFinished] = useState(false);
   const [user,setUser]=useState<User|null>(null);
+  const [coins,setCoins]=useState<number|null>(null);
+  const [dailyStreak,setDailyStreak]=useState(0);
+  const [claimedToday,setClaimedToday]=useState(false);
   const challenge = challenges[challengeIndex];
 
   useEffect(()=>{
@@ -28,6 +33,11 @@ export default function App() {
     const {data}=supabase.auth.onAuthStateChange((_event,session)=>setUser(session?.user??null));
     return ()=>data.subscription.unsubscribe();
   },[]);
+
+  useEffect(()=>{
+    if(!user){setCoins(null);return;}
+    loadGameProfile().then((profile)=>{setCoins(profile?.coins??null);setDailyStreak(profile?.dailyStreak??0);setClaimedToday(profile?.lastDailyReward===new Date().toISOString().slice(0,10))}).catch(()=>setCoins(null));
+  },[user]);
 
   const choose = (choice: ChoiceId) => {
     setSelectedChoice(choice);
@@ -40,14 +50,21 @@ export default function App() {
   const restart = () => {
     setChallengeIndex(0); setSelectedChoice(null); setScore(0); setFinished(false); setPage('training');
   };
+  const rewardMatchWin=async()=>{
+    const profile=await loadGameProfile();
+    if(!profile)return;
+    const updated={...profile,coins:profile.coins+25};
+    await saveGameProfile(updated);setCoins(updated.coins);
+  };
 
   return (
     <main className="app-shell">
-      <SiteHeader page={page} score={score} progress={`${challengeIndex + 1} / ${challenges.length}`} userEmail={user?.email} userName={user?.user_metadata.name as string | undefined} onSignOut={()=>supabase.auth.signOut()} onNavigate={setPage} />
-      {page === 'home' && <HomeScreen onPlay={() => setPage('training')} onExplore={() => setPage('world')} />}
+      <SiteHeader page={page} score={score} coins={coins} dailyStreak={dailyStreak} claimedToday={claimedToday} progress={`${challengeIndex + 1} / ${challenges.length}`} userEmail={user?.email} userName={user?.user_metadata.name as string | undefined} onCoinsChange={setCoins} onDailyChange={(streak)=>{setDailyStreak(streak);setClaimedToday(true)}} onSignOut={()=>supabase.auth.signOut()} onNavigate={setPage} />
+      {page === 'home' && <HomeScreen onMatch={()=>setPage('match')} onExplore={() => setPage('world')} />}
+      {page === 'match' && <FieldCapsMatch onBack={()=>setPage('home')} onWin={()=>{void rewardMatchWin()}}/>}
       {page === 'world' && <WorldScreen />}
       {page === 'quiz' && <QuizScreen />}
-      {page === 'games' && <PenaltyMind />}
+      {page === 'games' && <GamesScreen onCoinsChange={setCoins} />}
       {page === 'auth' && <Auth />}
       {page === 'training' && (finished ? <GameComplete score={score} total={challenges.length} onRestart={restart} /> : (
         <section className="game-layout">

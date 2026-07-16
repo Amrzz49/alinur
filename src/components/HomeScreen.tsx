@@ -1,13 +1,13 @@
-type Props = { onPlay: () => void; onExplore: () => void };
+type Props = { onMatch:()=>void; onExplore: () => void };
 
-export function HomeScreen({ onPlay, onExplore }: Props) {
+export function HomeScreen({ onMatch, onExplore }: Props) {
   return (
     <section className="home-screen">
       <div className="hero-copy">
         <div className="eyebrow"><span /> Тренируй футбольное мышление</div>
         <h1>Думай быстрее.<br /><em>Играй умнее.</em></h1>
         <p>Принимай решения на 2D-поле, получай разбор каждого хода и учись видеть игру как профессионал.</p>
-        <div className="hero-actions"><button className="play-button" onClick={onPlay}>Начать тренировку <span>→</span></button><button className="explore-button" onClick={onExplore}>Смотреть звёзд</button></div>
+        <div className="hero-actions"><button className="play-button" onClick={onMatch}>Начать матч <span>→</span></button><button className="explore-button" onClick={onExplore}>Смотреть звёзд</button></div>
         <div className="hero-numbers"><div><strong>12</strong><span>ситуаций</span></div><div><strong>3</strong><span>уровня</span></div><div><strong>4</strong><span>решения</span></div></div>
       </div>
       <div className="hero-board">

@@ -8,8 +8,11 @@ import barcelonaLogo from '../assets/clubs/barcelona.svg';
 import liverpoolLogo from '../assets/clubs/liverpool.svg';
 import psgLogo from '../assets/clubs/psg.svg';
 import realMadridLogo from '../assets/clubs/real-madrid.png';
+import arneSlotPhoto from '../assets/coaches/arne-slot.jpg';
+import hansiFlickPhoto from '../assets/coaches/hansi-flick.jpg';
+import luisEnriquePhoto from '../assets/coaches/luis-enrique.jpg';
 
-export type WorldItem = { name: string; meta: string; fact: string; mark: string; color: string; logo?: string };
+export type WorldItem = { name: string; meta: string; fact: string; mark: string; color: string; logo?: string; photo?: string };
 export type PlayerCard = { name: string; shortName: string; photo: string; country: string; position: string; rating: number; accent: string; stats: { label: string; value: number }[]; note: string };
 export type PlayerDetails = { birthDate: string; club: string; nationalTeam: string; foot: string; height: string; style: string };
 
@@ -37,9 +40,9 @@ export const clubs: WorldItem[] = [
 ];
 
 export const coaches: WorldItem[] = [
-  { name: 'Луис Энрике', meta: 'Испания · PSG', fact: 'The Best FIFA Coach 2025', mark: 'LE', color: '#345b8d' },
-  { name: 'Ханси Флик', meta: 'Германия · Barcelona', fact: 'Финалист The Best FIFA 2025', mark: 'HF', color: '#7c3e50' },
-  { name: 'Арне Слот', meta: 'Нидерланды · Liverpool', fact: 'Финалист The Best FIFA 2025', mark: 'AS', color: '#8e3438' },
+  { name: 'Луис Энрике', meta: 'Испания · PSG', fact: 'The Best FIFA Coach 2025', mark: 'LE', color: '#345b8d', photo: luisEnriquePhoto },
+  { name: 'Ханси Флик', meta: 'Германия · Barcelona', fact: 'Финалист The Best FIFA 2025', mark: 'HF', color: '#7c3e50', photo: hansiFlickPhoto },
+  { name: 'Арне Слот', meta: 'Нидерланды · Liverpool', fact: 'Финалист The Best FIFA 2025', mark: 'AS', color: '#8e3438', photo: arneSlotPhoto },
 ];
 
 export const worldCupCards: PlayerCard[] = [

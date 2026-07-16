@@ -6,6 +6,21 @@
 @import './styles/quiz.css';
 @import './styles/auth.css';
 @import './styles/penalty.css';
+@import './styles/games.css';
+@import './styles/find-pass.css';
+@import './styles/squad.css';
+@import './styles/var-challenge.css';
+@import './styles/daily-rewards.css';
+@import './styles/field-caps.css';
+@import './styles/nike-fieldmind.css';
+
+.caps-canvas-wrap { position: relative; }
+.caps-finish { position: absolute; z-index: 8; inset: 0; display: grid; place-content: center; padding: 25px; background: rgba(4,13,49,.88); color: #fff; text-align: center; backdrop-filter: blur(5px); }
+.caps-finish span { font-size: 62px; }
+.caps-finish h2 { margin: 10px 0 4px; font-size: 42px; }
+.caps-finish p { margin: 5px 0 20px; }
+.caps-finish button { min-width: 180px; margin: 5px auto; padding: 13px 22px; border: 1px solid #fff; border-radius: 999px; background: #fff; color: #111; font-weight: 900; }
+.caps-finish button + button { background: transparent; color: #fff; }
 
 :root {
   font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -28,6 +43,7 @@ button { cursor: pointer; }
 .progress-pill { display: flex; gap: 9px; align-items: center; padding: 9px 14px; border-radius: 99px; background: #e7ede5; color: #657068; font-size: 13px; }
 .progress-pill strong { color: #24362b; }
 .header-stats { display: flex; align-items: center; gap: 8px; }
+.header-wallet { min-width: 72px; padding: 9px 13px; border: 1px solid rgba(255,255,255,.45); border-radius: 99px; background: #fff; color: #111; font-size: 13px; font-weight: 900; text-align: center; }
 .score-pill { padding: 9px 12px; border-radius: 99px; background: #176b48; color: #fff; font-size: 13px; font-weight: 800; }
 .nav-links { display: flex; gap: 5px; }
 .nav-links button { padding: 9px 13px; border: 0; border-radius: 9px; background: none; color: #6b756e; font-size: 13px; font-weight: 650; }
