@@ -12,6 +12,7 @@
 @import './styles/var-challenge.css';
 @import './styles/daily-rewards.css';
 @import './styles/field-caps.css';
+@import './styles/ai-coach.css';
 @import './styles/nike-fieldmind.css';
 
 .caps-canvas-wrap { position: relative; }

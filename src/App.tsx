@@ -13,6 +13,7 @@ import { challenges, type ChoiceId } from './lib/challenges';
 import { supabase } from './lib/supabase';
 import { loadGameProfile, saveGameProfile } from './lib/gameWallet';
 import { FieldCapsMatch } from './components/FieldCapsMatch';
+import type { TrainingDecision } from './lib/aiCoach';
 
 export type Page = 'home' | 'match' | 'training' | 'games' | 'quiz' | 'world' | 'auth';
 
@@ -26,6 +27,7 @@ export default function App() {
   const [coins,setCoins]=useState<number|null>(null);
   const [dailyStreak,setDailyStreak]=useState(0);
   const [claimedToday,setClaimedToday]=useState(false);
+  const [trainingDecisions,setTrainingDecisions]=useState<TrainingDecision[]>([]);
   const challenge = challenges[challengeIndex];
 
   useEffect(()=>{
@@ -41,6 +43,7 @@ export default function App() {
 
   const choose = (choice: ChoiceId) => {
     setSelectedChoice(choice);
+    setTrainingDecisions((current)=>[...current,{title:challenge.title,difficulty:challenge.difficulty,selected:choice,correct:challenge.correctChoice}]);
     if (choice === challenge.correctChoice) setScore((current) => current + 1);
   };
   const next = () => {
@@ -48,7 +51,7 @@ export default function App() {
     setChallengeIndex((current) => current + 1); setSelectedChoice(null);
   };
   const restart = () => {
-    setChallengeIndex(0); setSelectedChoice(null); setScore(0); setFinished(false); setPage('training');
+    setChallengeIndex(0); setSelectedChoice(null); setScore(0); setFinished(false); setTrainingDecisions([]); setPage('training');
   };
   const rewardMatchWin=async()=>{
     const profile=await loadGameProfile();
@@ -66,7 +69,7 @@ export default function App() {
       {page === 'quiz' && <QuizScreen />}
       {page === 'games' && <GamesScreen onCoinsChange={setCoins} />}
       {page === 'auth' && <Auth />}
-      {page === 'training' && (finished ? <GameComplete score={score} total={challenges.length} onRestart={restart} /> : (
+      {page === 'training' && (finished ? <GameComplete score={score} total={challenges.length} decisions={trainingDecisions} onRestart={restart} /> : (
         <section className="game-layout">
           <div className="field-column">
             <div className="eyebrow"><span /> {challenge.difficulty}</div><h1>{challenge.title}</h1>
