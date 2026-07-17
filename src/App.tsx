@@ -78,7 +78,7 @@ export default function App() {
 
   return (
     <main className="app-shell">
-      <SiteHeader page={page} score={score} coins={coins} playerProgress={playerProgress} settings={settings} dailyStreak={dailyStreak} claimedToday={claimedToday} progress={`${challengeIndex + 1} / ${challenges.length}`} userEmail={user?.email} userName={user?.user_metadata.name as string | undefined} isGuest={isGuest&&!user} onSettingsChange={changeSettings} onCoinsChange={setCoins} onDailyChange={(streak)=>{setDailyStreak(streak);setClaimedToday(true)}} onSignOut={signOut} onNavigate={setPage} />
+      <SiteHeader page={page} score={score} coins={coins} playerProgress={playerProgress} settings={settings} dailyStreak={dailyStreak} claimedToday={claimedToday} progress={`${challengeIndex + 1} / ${challenges.length}`} userEmail={user?.email} userName={user?.user_metadata.name as string | undefined} isGuest={isGuest&&!user} onGuest={enterAsGuest} onSettingsChange={changeSettings} onCoinsChange={setCoins} onDailyChange={(streak)=>{setDailyStreak(streak);setClaimedToday(true)}} onSignOut={signOut} onNavigate={setPage} />
       {page === 'home' && <HomeScreen language={settings.language} onMatch={()=>setPage('match')} onExplore={() => setPage('world')} />}
       {page === 'match' && <FieldCapsMatch onBack={()=>setPage('home')} onWin={()=>{void rewardMatchWin()}}/>}
       {page === 'world' && <WorldScreen language={settings.language} />}
