@@ -17,12 +17,13 @@ const games:GameCard[]=[
   {id:'var',role:'ВИДЕОСУДЬЯ',title:'VAR Challenge',text:'Разбирай спорные эпизоды и выноси правильный вердикт.',cover:'VAR',price:200},
 ];
 
-export function GamesScreen({onCoinsChange}:{onCoinsChange:(coins:number)=>void}) {
+export function GamesScreen({onCoinsChange,onGameComplete}:{onCoinsChange:(coins:number)=>void;onGameComplete:()=>void}) {
   const [game,setGame]=useState<Game>('menu');
   const [profile,setProfile]=useState<GameProfile|null>(null);
   const [message,setMessage]=useState('');
   useEffect(()=>{loadGameProfile().then((loaded)=>{setProfile(loaded);if(loaded)onCoinsChange(loaded.coins)}).catch(()=>setMessage('Не удалось загрузить баланс.'))},[onCoinsChange]);
   const reward=()=>{
+    onGameComplete();
     if(!profile)return;
     const updated={...profile,coins:profile.coins+50};
     setProfile(updated);onCoinsChange(updated.coins);setMessage('+$50 за завершённую игру!');

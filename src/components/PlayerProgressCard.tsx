@@ -1,0 +1,9 @@
+import type { PlayerProgress } from '../lib/playerProgress';
+
+const skillLabels={vision:'Видение поля',passing:'Пас',shooting:'Удар',dribbling:'Дриблинг'};
+
+export function PlayerProgressCard({progress}:{progress:PlayerProgress}){
+  const level=Math.floor(progress.xp/500)+1,xpInLevel=progress.xp%500;
+  const tasks=[{label:'Пройти тренировку',value:progress.dailyTasks.training,target:1},{label:'Завершить 2 мини-игры',value:progress.dailyTasks.games,target:2},{label:'Выиграть матч',value:progress.dailyTasks.wins,target:1}];
+  return <section className="player-progress"><header><div><span>УРОВЕНЬ</span><strong>{level}</strong></div><div><b>{progress.xp} XP</b><i><em style={{width:`${xpInLevel/5}%`}}/></i><small>{xpInLevel} / 500 до нового уровня</small></div></header><h3>Профиль навыков</h3><div className="skill-list">{Object.entries(progress.skills).map(([key,value])=><label key={key}><span>{skillLabels[key as keyof typeof skillLabels]}</span><i><em style={{width:`${value}%`}}/></i><b>{value}</b></label>)}</div><h3>Задания на сегодня</h3><div className="daily-tasks">{tasks.map((task)=>{const done=task.value>=task.target;return <div className={done?'done':''} key={task.label}><i>{done?'✓':'○'}</i><span>{task.label}</span><b>{Math.min(task.value,task.target)}/{task.target}</b></div>})}</div></section>;
+}

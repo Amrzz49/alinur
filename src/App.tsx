@@ -14,6 +14,7 @@ import { supabase } from './lib/supabase';
 import { loadGameProfile, saveGameProfile } from './lib/gameWallet';
 import { FieldCapsMatch } from './components/FieldCapsMatch';
 import type { TrainingDecision } from './lib/aiCoach';
+import { defaultProgress, loadPlayerProgress, recordActivity, trainingSkillChanges, type Activity, type PlayerProgress } from './lib/playerProgress';
 
 export type Page = 'home' | 'match' | 'training' | 'games' | 'quiz' | 'world' | 'auth';
 
@@ -28,6 +29,7 @@ export default function App() {
   const [dailyStreak,setDailyStreak]=useState(0);
   const [claimedToday,setClaimedToday]=useState(false);
   const [trainingDecisions,setTrainingDecisions]=useState<TrainingDecision[]>([]);
+  const [playerProgress,setPlayerProgress]=useState<PlayerProgress>(defaultProgress);
   const challenge = challenges[challengeIndex];
 
   useEffect(()=>{
@@ -38,8 +40,12 @@ export default function App() {
 
   useEffect(()=>{
     if(!user){setCoins(null);return;}
-    loadGameProfile().then((profile)=>{setCoins(profile?.coins??null);setDailyStreak(profile?.dailyStreak??0);setClaimedToday(profile?.lastDailyReward===new Date().toISOString().slice(0,10))}).catch(()=>setCoins(null));
+    loadGameProfile().then(async(profile)=>{setCoins(profile?.coins??null);setDailyStreak(profile?.dailyStreak??0);setClaimedToday(profile?.lastDailyReward===new Date().toISOString().slice(0,10));const progress=await loadPlayerProgress();if(progress)setPlayerProgress(progress)}).catch(()=>setCoins(null));
   },[user]);
+
+  const trackActivity=async(activity:Activity,decisions:TrainingDecision[]=[])=>{
+    try{setPlayerProgress(await recordActivity(activity,activity==='training'?trainingSkillChanges(decisions):{}))}catch{return;}
+  };
 
   const choose = (choice: ChoiceId) => {
     setSelectedChoice(choice);
@@ -47,7 +53,7 @@ export default function App() {
     if (choice === challenge.correctChoice) setScore((current) => current + 1);
   };
   const next = () => {
-    if (challengeIndex === challenges.length - 1) return setFinished(true);
+    if (challengeIndex === challenges.length - 1) {void trackActivity('training',trainingDecisions);return setFinished(true);}
     setChallengeIndex((current) => current + 1); setSelectedChoice(null);
   };
   const restart = () => {
@@ -57,17 +63,17 @@ export default function App() {
     const profile=await loadGameProfile();
     if(!profile)return;
     const updated={...profile,coins:profile.coins+25};
-    await saveGameProfile(updated);setCoins(updated.coins);
+    await saveGameProfile(updated);setCoins(updated.coins);void trackActivity('match_win');
   };
 
   return (
     <main className="app-shell">
-      <SiteHeader page={page} score={score} coins={coins} dailyStreak={dailyStreak} claimedToday={claimedToday} progress={`${challengeIndex + 1} / ${challenges.length}`} userEmail={user?.email} userName={user?.user_metadata.name as string | undefined} onCoinsChange={setCoins} onDailyChange={(streak)=>{setDailyStreak(streak);setClaimedToday(true)}} onSignOut={()=>supabase.auth.signOut()} onNavigate={setPage} />
+      <SiteHeader page={page} score={score} coins={coins} playerProgress={playerProgress} dailyStreak={dailyStreak} claimedToday={claimedToday} progress={`${challengeIndex + 1} / ${challenges.length}`} userEmail={user?.email} userName={user?.user_metadata.name as string | undefined} onCoinsChange={setCoins} onDailyChange={(streak)=>{setDailyStreak(streak);setClaimedToday(true)}} onSignOut={()=>supabase.auth.signOut()} onNavigate={setPage} />
       {page === 'home' && <HomeScreen onMatch={()=>setPage('match')} onExplore={() => setPage('world')} />}
       {page === 'match' && <FieldCapsMatch onBack={()=>setPage('home')} onWin={()=>{void rewardMatchWin()}}/>}
       {page === 'world' && <WorldScreen />}
       {page === 'quiz' && <QuizScreen />}
-      {page === 'games' && <GamesScreen onCoinsChange={setCoins} />}
+      {page === 'games' && <GamesScreen onCoinsChange={setCoins} onGameComplete={()=>{void trackActivity('game')}} />}
       {page === 'auth' && <Auth />}
       {page === 'training' && (finished ? <GameComplete score={score} total={challenges.length} decisions={trainingDecisions} onRestart={restart} /> : (
         <section className="game-layout">
