@@ -17,6 +17,7 @@ import type { TrainingDecision } from './lib/aiCoach';
 import { defaultProgress, loadPlayerProgress, recordActivity, trainingSkillChanges, type Activity, type PlayerProgress } from './lib/playerProgress';
 import { defaultSettings, loadUserSettings, saveUserSettings, type UserSettings } from './lib/userSettings';
 import { localizeChallenge } from './lib/trainingTranslations';
+import { loadGuestProfile } from './lib/guestProfile';
 
 export type Page = 'home' | 'match' | 'training' | 'games' | 'quiz' | 'world' | 'auth';
 
@@ -43,6 +44,8 @@ export default function App() {
     return ()=>data.subscription.unsubscribe();
   },[]);
 
+  useEffect(()=>{if(!isGuest||user)return;const guest=loadGuestProfile();setCoins(guest.coins);setDailyStreak(guest.dailyStreak);setClaimedToday(guest.lastDailyReward===new Date().toISOString().slice(0,10));setPlayerProgress(guest.progress)},[isGuest,user]);
+
   useEffect(()=>{
     if(!user){setCoins(null);return;}
     loadGameProfile().then(async(profile)=>{setCoins(profile?.coins??null);setDailyStreak(profile?.dailyStreak??0);setClaimedToday(profile?.lastDailyReward===new Date().toISOString().slice(0,10));const [progress,savedSettings]=await Promise.all([loadPlayerProgress(),loadUserSettings()]);if(progress)setPlayerProgress(progress);setSettings(savedSettings)}).catch(()=>setCoins(null));
@@ -50,7 +53,7 @@ export default function App() {
 
   useEffect(()=>{document.documentElement.style.setProperty('--app-brightness',String(settings.brightness/100));document.documentElement.dataset.textSize=settings.textSize;document.documentElement.dataset.reducedMotion=String(settings.reducedMotion);document.documentElement.lang=settings.language},[settings]);
   const changeSettings=(next:UserSettings)=>{setSettings(next);if(isGuest)localStorage.setItem('fieldmind-guest-settings',JSON.stringify(next));else void saveUserSettings(next).catch(()=>undefined)};
-  const enterAsGuest=()=>{localStorage.setItem('fieldmind-guest','true');setIsGuest(true);const saved=localStorage.getItem('fieldmind-guest-settings');if(saved)try{setSettings({...defaultSettings,...JSON.parse(saved) as UserSettings})}catch{localStorage.removeItem('fieldmind-guest-settings')}setPage('home')};
+  const enterAsGuest=()=>{localStorage.setItem('fieldmind-guest','true');const guest=loadGuestProfile();setCoins(guest.coins);setDailyStreak(guest.dailyStreak);setClaimedToday(guest.lastDailyReward===new Date().toISOString().slice(0,10));setPlayerProgress(guest.progress);setIsGuest(true);const saved=localStorage.getItem('fieldmind-guest-settings');if(saved)try{setSettings({...defaultSettings,...JSON.parse(saved) as UserSettings})}catch{localStorage.removeItem('fieldmind-guest-settings')}setPage('home')};
   const signOut=()=>{if(isGuest){localStorage.removeItem('fieldmind-guest');setIsGuest(false);setSettings(defaultSettings);setPage('home');return}void supabase.auth.signOut()};
 
   const trackActivity=async(activity:Activity,decisions:TrainingDecision[]=[])=>{
