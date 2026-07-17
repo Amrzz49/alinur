@@ -15,7 +15,7 @@ const aiSettings: Record<
 > = {
   easy: { speed: 9, error: 0.5, delay: 900 },
   medium: { speed: 13, error: 0.22, delay: 650 },
-  hard: { speed: 19, error: 0.015, delay: 280 },
+  hard: { speed: 22, error: 0.004, delay: 220 },
 };
 const createMatch = () => {
   const caps: Disc[] = [
@@ -57,7 +57,8 @@ export function FieldCapsMatch({
     goalLockedRef = useRef(false),
     celebratingRef = useRef(false),
     difficultyRef = useRef<Difficulty>("medium"),
-    aiAimRef = useRef<{ cap: Disc; angle: number; speed: number } | null>(null);
+    aiAimRef = useRef<{ cap: Disc; angle: number; speed: number } | null>(null),
+    aiShotRef = useRef(false);
   const [score, setScore] = useState({ blue: 0, red: 0 }),
     [turn, setTurn] = useState<"blue" | "red">("blue"),
     [message, setMessage] = useState("Потяни синюю фишку назад и отпусти"),
@@ -69,6 +70,7 @@ export function FieldCapsMatch({
     matchRef.current = createMatch();
     dragRef.current = null;
     aiAimRef.current = null;
+    aiShotRef.current = false;
     goalLockedRef.current = false;
     celebratingRef.current = false;
     turnRef.current = "blue";
@@ -115,6 +117,7 @@ export function FieldCapsMatch({
       goalLockedRef.current = true;
       celebratingRef.current = true;
       aiAimRef.current = null;
+      aiShotRef.current = false;
       const current = matchRef.current;
       [...current.caps, current.ball].forEach((item) => {
         item.vx = 0;
@@ -420,21 +423,52 @@ export function FieldCapsMatch({
       }
       const moving = all.some((item) => Math.hypot(item.vx, item.vy) > 0.12);
       if (!moving && turnRef.current === "red" && !aiTimer) {
+        if (aiShotRef.current) {
+          aiShotRef.current = false;
+          turnRef.current = "blue";
+          setTurn("blue");
+          setMessage("Мяч остановился — твой ход");
+          draw();
+          frame = requestAnimationFrame(tick);
+          return;
+        }
         const reds = matchRef.current.caps.filter((cap) => cap.team === "red");
         const settings = aiSettings[difficultyRef.current];
         const hard = difficultyRef.current === "hard";
-        const targetY = hard ? (ball.y < 300 ? 350 : 250) : ball.y;
+        const blues = matchRef.current.caps.filter(
+          (cap) => cap.team === "blue",
+        );
+        const closestDefender = blues.reduce((best, item) =>
+          item.x < best.x ? item : best,
+        );
+        const targetY = hard ? (closestDefender.y < 300 ? 365 : 235) : ball.y;
+        const goalDx = ball.x - 4,
+          goalDy = ball.y - targetY,
+          goalDistance = Math.hypot(goalDx, goalDy) || 1,
+          contactDistance = ball.r + 29,
+          plannedContactX = Math.min(
+            940,
+            ball.x + (goalDx / goalDistance) * contactDistance,
+          ),
+          plannedContactY = Math.max(
+            55,
+            Math.min(545, ball.y + (goalDy / goalDistance) * contactDistance),
+          );
         const cap = reds.reduce((best, item) => {
           const score =
-            Math.hypot(item.x - ball.x, item.y - ball.y) +
-            (hard ? Math.abs(item.y - targetY) * 0.35 : 0);
+            Math.hypot(
+              item.x - (hard ? plannedContactX : ball.x),
+              item.y - (hard ? plannedContactY : ball.y),
+            ) + (hard && item.x < ball.x ? 160 : 0);
           const bestScore =
-            Math.hypot(best.x - ball.x, best.y - ball.y) +
-            (hard ? Math.abs(best.y - targetY) * 0.35 : 0);
+            Math.hypot(
+              best.x - (hard ? plannedContactX : ball.x),
+              best.y - (hard ? plannedContactY : ball.y),
+            ) + (hard && best.x < ball.x ? 160 : 0);
           return score < bestScore ? item : best;
         });
-        const contactX = hard ? ball.x + ball.r + cap.r * 0.72 : ball.x;
-        const contactY = hard ? ball.y + (ball.y - targetY) * 0.12 : ball.y;
+        const contactX = hard ? plannedContactX : ball.x;
+        const contactY = hard ? plannedContactY : ball.y;
         const angle =
           Math.atan2(contactY - cap.y, contactX - cap.x) +
           (Math.random() - 0.5) * settings.error;
@@ -443,9 +477,8 @@ export function FieldCapsMatch({
           cap.vx = Math.cos(angle) * settings.speed;
           cap.vy = Math.sin(angle) * settings.speed;
           aiAimRef.current = null;
-          turnRef.current = "blue";
-          setTurn("blue");
-          setMessage("Твой ход");
+          aiShotRef.current = true;
+          setMessage("Удар AI — жди остановки мяча");
           aiTimer = 0;
         }, aiSettings[difficultyRef.current].delay);
       }
@@ -468,6 +501,11 @@ export function FieldCapsMatch({
   };
   const down = (event: React.PointerEvent<HTMLCanvasElement>) => {
     if (turnRef.current !== "blue") return;
+    const ball = matchRef.current.ball;
+    if (Math.hypot(ball.vx, ball.vy) > 0.12) {
+      setMessage("Подожди, пока мяч остановится");
+      return;
+    }
     const p = point(event),
       cap = matchRef.current.caps.find(
         (item) =>
@@ -486,6 +524,15 @@ export function FieldCapsMatch({
   const up = () => {
     const drag = dragRef.current;
     if (!drag) return;
+    const distance = Math.hypot(
+      drag.start.x - drag.now.x,
+      drag.start.y - drag.now.y,
+    );
+    if (distance < 5) {
+      dragRef.current = null;
+      setMessage("Потяни фишку назад сильнее");
+      return;
+    }
     drag.cap.vx = Math.max(
       -18,
       Math.min(18, (drag.start.x - drag.now.x) * 0.11),
@@ -498,6 +545,11 @@ export function FieldCapsMatch({
     turnRef.current = "red";
     setTurn("red");
     setMessage("Ход соперника...");
+  };
+  const cancelDrag = () => {
+    if (!dragRef.current) return;
+    dragRef.current = null;
+    setMessage("Прицел сброшен — попробуй удар ещё раз");
   };
   return (
     <section className="caps-match">
@@ -554,6 +606,9 @@ export function FieldCapsMatch({
           onPointerDown={down}
           onPointerMove={move}
           onPointerUp={up}
+          onPointerCancel={cancelDrag}
+          onLostPointerCapture={up}
+          onContextMenu={(event) => event.preventDefault()}
         />
         {winner && (
           <div className="caps-finish">
