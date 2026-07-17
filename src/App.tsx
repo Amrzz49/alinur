@@ -15,6 +15,8 @@ import { loadGameProfile, saveGameProfile } from './lib/gameWallet';
 import { FieldCapsMatch } from './components/FieldCapsMatch';
 import type { TrainingDecision } from './lib/aiCoach';
 import { defaultProgress, loadPlayerProgress, recordActivity, trainingSkillChanges, type Activity, type PlayerProgress } from './lib/playerProgress';
+import { defaultSettings, loadUserSettings, saveUserSettings, type UserSettings } from './lib/userSettings';
+import { localizeChallenge } from './lib/trainingTranslations';
 
 export type Page = 'home' | 'match' | 'training' | 'games' | 'quiz' | 'world' | 'auth';
 
@@ -25,23 +27,31 @@ export default function App() {
   const [score, setScore] = useState(0);
   const [finished, setFinished] = useState(false);
   const [user,setUser]=useState<User|null>(null);
+  const [isGuest,setIsGuest]=useState(()=>localStorage.getItem('fieldmind-guest')==='true');
   const [coins,setCoins]=useState<number|null>(null);
   const [dailyStreak,setDailyStreak]=useState(0);
   const [claimedToday,setClaimedToday]=useState(false);
   const [trainingDecisions,setTrainingDecisions]=useState<TrainingDecision[]>([]);
   const [playerProgress,setPlayerProgress]=useState<PlayerProgress>(defaultProgress);
-  const challenge = challenges[challengeIndex];
+  const [settings,setSettings]=useState<UserSettings>(defaultSettings);
+  const challenge = localizeChallenge(challenges[challengeIndex],challengeIndex,settings.language);
 
   useEffect(()=>{
-    supabase.auth.getUser().then(({data})=>setUser(data.user));
-    const {data}=supabase.auth.onAuthStateChange((_event,session)=>setUser(session?.user??null));
+    const acceptUser=(nextUser:User|null)=>{setUser(nextUser);if(nextUser){localStorage.removeItem('fieldmind-guest');setIsGuest(false)}};
+    supabase.auth.getUser().then(({data})=>acceptUser(data.user));
+    const {data}=supabase.auth.onAuthStateChange((_event,session)=>acceptUser(session?.user??null));
     return ()=>data.subscription.unsubscribe();
   },[]);
 
   useEffect(()=>{
     if(!user){setCoins(null);return;}
-    loadGameProfile().then(async(profile)=>{setCoins(profile?.coins??null);setDailyStreak(profile?.dailyStreak??0);setClaimedToday(profile?.lastDailyReward===new Date().toISOString().slice(0,10));const progress=await loadPlayerProgress();if(progress)setPlayerProgress(progress)}).catch(()=>setCoins(null));
+    loadGameProfile().then(async(profile)=>{setCoins(profile?.coins??null);setDailyStreak(profile?.dailyStreak??0);setClaimedToday(profile?.lastDailyReward===new Date().toISOString().slice(0,10));const [progress,savedSettings]=await Promise.all([loadPlayerProgress(),loadUserSettings()]);if(progress)setPlayerProgress(progress);setSettings(savedSettings)}).catch(()=>setCoins(null));
   },[user]);
+
+  useEffect(()=>{document.documentElement.style.setProperty('--app-brightness',String(settings.brightness/100));document.documentElement.dataset.textSize=settings.textSize;document.documentElement.dataset.reducedMotion=String(settings.reducedMotion);document.documentElement.lang=settings.language},[settings]);
+  const changeSettings=(next:UserSettings)=>{setSettings(next);if(isGuest)localStorage.setItem('fieldmind-guest-settings',JSON.stringify(next));else void saveUserSettings(next).catch(()=>undefined)};
+  const enterAsGuest=()=>{localStorage.setItem('fieldmind-guest','true');setIsGuest(true);const saved=localStorage.getItem('fieldmind-guest-settings');if(saved)try{setSettings({...defaultSettings,...JSON.parse(saved) as UserSettings})}catch{localStorage.removeItem('fieldmind-guest-settings')}setPage('home')};
+  const signOut=()=>{if(isGuest){localStorage.removeItem('fieldmind-guest');setIsGuest(false);setSettings(defaultSettings);setPage('home');return}void supabase.auth.signOut()};
 
   const trackActivity=async(activity:Activity,decisions:TrainingDecision[]=[])=>{
     try{setPlayerProgress(await recordActivity(activity,activity==='training'?trainingSkillChanges(decisions):{}))}catch{return;}
@@ -68,22 +78,22 @@ export default function App() {
 
   return (
     <main className="app-shell">
-      <SiteHeader page={page} score={score} coins={coins} playerProgress={playerProgress} dailyStreak={dailyStreak} claimedToday={claimedToday} progress={`${challengeIndex + 1} / ${challenges.length}`} userEmail={user?.email} userName={user?.user_metadata.name as string | undefined} onCoinsChange={setCoins} onDailyChange={(streak)=>{setDailyStreak(streak);setClaimedToday(true)}} onSignOut={()=>supabase.auth.signOut()} onNavigate={setPage} />
-      {page === 'home' && <HomeScreen onMatch={()=>setPage('match')} onExplore={() => setPage('world')} />}
+      <SiteHeader page={page} score={score} coins={coins} playerProgress={playerProgress} settings={settings} dailyStreak={dailyStreak} claimedToday={claimedToday} progress={`${challengeIndex + 1} / ${challenges.length}`} userEmail={user?.email} userName={user?.user_metadata.name as string | undefined} isGuest={isGuest&&!user} onSettingsChange={changeSettings} onCoinsChange={setCoins} onDailyChange={(streak)=>{setDailyStreak(streak);setClaimedToday(true)}} onSignOut={signOut} onNavigate={setPage} />
+      {page === 'home' && <HomeScreen language={settings.language} onMatch={()=>setPage('match')} onExplore={() => setPage('world')} />}
       {page === 'match' && <FieldCapsMatch onBack={()=>setPage('home')} onWin={()=>{void rewardMatchWin()}}/>}
-      {page === 'world' && <WorldScreen />}
+      {page === 'world' && <WorldScreen language={settings.language} />}
       {page === 'quiz' && <QuizScreen />}
-      {page === 'games' && <GamesScreen onCoinsChange={setCoins} onGameComplete={()=>{void trackActivity('game')}} />}
-      {page === 'auth' && <Auth />}
-      {page === 'training' && (finished ? <GameComplete score={score} total={challenges.length} decisions={trainingDecisions} onRestart={restart} /> : (
+      {page === 'games' && <GamesScreen language={settings.language} onCoinsChange={setCoins} onGameComplete={()=>{void trackActivity('game')}} />}
+      {page === 'auth' && <Auth language={settings.language} onGuest={enterAsGuest} />}
+      {page === 'training' && (finished ? <GameComplete score={score} total={challenges.length} decisions={trainingDecisions} language={settings.language} onRestart={restart} /> : (
         <section className="game-layout">
           <div className="field-column">
             <div className="eyebrow"><span /> {challenge.difficulty}</div><h1>{challenge.title}</h1>
-            <p className="lead">Ты играешь за синюю команду. Посмотри на поле и прими решение.</p>
+            <p className="lead">{settings.language==='en'?'You play for the blue team. Study the pitch and make a decision.':'Ты играешь за синюю команду. Посмотри на поле и прими решение.'}</p>
             <FootballField challenge={challenge} selectedChoice={selectedChoice} />
-            <div className="legend"><span><i className="dot dot--blue" /> Твоя команда</span><span><i className="dot dot--red" /> Соперник</span><span><i className="ball-mini">●</i> Мяч</span></div>
+            <div className="legend"><span><i className="dot dot--blue" /> {settings.language==='en'?'Your team':'Твоя команда'}</span><span><i className="dot dot--red" /> {settings.language==='en'?'Opponent':'Соперник'}</span><span><i className="ball-mini">●</i> {settings.language==='en'?'Ball':'Мяч'}</span></div>
           </div>
-          <DecisionPanel challenge={challenge} selectedChoice={selectedChoice} onChoose={choose} onNext={next} />
+          <DecisionPanel challenge={challenge} selectedChoice={selectedChoice} language={settings.language} onChoose={choose} onNext={next} />
         </section>
       ))}
     </main>

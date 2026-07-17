@@ -533,14 +533,14 @@ export function FieldCapsMatch({
       setMessage("Потяни фишку назад сильнее");
       return;
     }
-    drag.cap.vx = Math.max(
-      -18,
-      Math.min(18, (drag.start.x - drag.now.x) * 0.11),
-    );
-    drag.cap.vy = Math.max(
-      -18,
-      Math.min(18, (drag.start.y - drag.now.y) * 0.11),
-    );
+    const rawAngle = Math.atan2(
+        drag.start.y - drag.now.y,
+        drag.start.x - drag.now.x,
+      ),
+      angle = rawAngle,
+      speed = Math.min(18, distance * 0.11);
+    drag.cap.vx = Math.cos(angle) * speed;
+    drag.cap.vy = Math.sin(angle) * speed;
     dragRef.current = null;
     turnRef.current = "red";
     setTurn("red");
@@ -551,6 +551,20 @@ export function FieldCapsMatch({
     dragRef.current = null;
     setMessage("Прицел сброшен — попробуй удар ещё раз");
   };
+  useEffect(() => {
+    const finishOutsideField = () => up();
+    const cancelOutsideField = () => cancelDrag();
+    window.addEventListener("pointerup", finishOutsideField);
+    window.addEventListener("pointercancel", cancelOutsideField);
+    window.addEventListener("blur", cancelOutsideField);
+    document.addEventListener("visibilitychange", cancelOutsideField);
+    return () => {
+      window.removeEventListener("pointerup", finishOutsideField);
+      window.removeEventListener("pointercancel", cancelOutsideField);
+      window.removeEventListener("blur", cancelOutsideField);
+      document.removeEventListener("visibilitychange", cancelOutsideField);
+    };
+  }, []);
   return (
     <section className="caps-match">
       <button className="game-back" onClick={onBack}>
@@ -608,6 +622,9 @@ export function FieldCapsMatch({
           onPointerUp={up}
           onPointerCancel={cancelDrag}
           onLostPointerCapture={up}
+          onPointerLeave={(event) => {
+            if (event.buttons === 0) up();
+          }}
           onContextMenu={(event) => event.preventDefault()}
         />
         {winner && (

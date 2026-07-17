@@ -1,19 +1,20 @@
 import { AiCoachAnalysis } from './AiCoachAnalysis';
 import type { TrainingDecision } from '../lib/aiCoach';
 
-type Props = { score: number; total: number; decisions:TrainingDecision[]; onRestart: () => void };
+type Props = { score: number; total: number; decisions:TrainingDecision[]; language:'ru'|'en'; onRestart: () => void };
 
-export function GameComplete({ score, total, decisions, onRestart }: Props) {
+export function GameComplete({ score, total, decisions, language, onRestart }: Props) {
   const percent = Math.round((score / total) * 100);
+  const en=language==='en';
   return (
     <section className="complete-screen">
       <div className="trophy">🏆</div>
-      <span className="step-label">ТРЕНИРОВКА ЗАВЕРШЕНА</span>
-      <h1>Отличная работа!</h1>
-      <p>Ты прошёл путь от простых пасов до сложных тактических решений.</p>
-      <div className="final-score"><strong>{score} / {total}</strong><span>правильных решений · {percent}%</span></div>
-      <AiCoachAnalysis decisions={decisions} score={score} total={total}/>
-      <button className="next-button" onClick={onRestart}>Пройти ещё раз <span>↻</span></button>
+      <span className="step-label">{en?'TRAINING COMPLETE':'ТРЕНИРОВКА ЗАВЕРШЕНА'}</span>
+      <h1>{en?'Great work!':'Отличная работа!'}</h1>
+      <p>{en?'You progressed from simple passes to difficult tactical decisions.':'Ты прошёл путь от простых пасов до сложных тактических решений.'}</p>
+      <div className="final-score"><strong>{score} / {total}</strong><span>{en?'correct decisions':'правильных решений'} · {percent}%</span></div>
+      <AiCoachAnalysis decisions={decisions} score={score} total={total} language={language}/>
+      <button className="next-button" onClick={onRestart}>{en?'Try again':'Пройти ещё раз'} <span>↻</span></button>
     </section>
   );
 }

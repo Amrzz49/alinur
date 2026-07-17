@@ -2,7 +2,7 @@ export type ChoiceId = 'left' | 'right' | 'dribble' | 'shot';
 export type Player = { team: 'blue' | 'red'; x: number; y: number; isYou?: boolean };
 export type Challenge = {
   title: string;
-  difficulty: 'Легко' | 'Средне' | 'Сложно';
+  difficulty: 'Легко' | 'Средне' | 'Сложно' | 'Easy' | 'Medium' | 'Hard';
   situation: string;
   tip: string;
   correctChoice: ChoiceId;

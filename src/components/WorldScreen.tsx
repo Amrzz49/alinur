@@ -7,7 +7,8 @@ type Tab = 'worldCup' | 'season' | 'players' | 'clubs' | 'coaches';
 const tabs: { id: Tab; label: string }[] = [{id:'worldCup',label:'ЧМ-2026'},{id:'season',label:'Сезон 25/26'},{id:'players',label:'Звёзды'},{id:'clubs',label:'Клубы'},{id:'coaches',label:'Тренеры'}];
 const logoClass = (item: WorldItem) => item.name === 'Real Madrid' || item.meta.includes('Real Madrid') ? 'world-avatar--rm' : item.name === 'Liverpool' ? 'world-avatar--lfc' : '';
 
-export function WorldScreen() {
+export function WorldScreen({language}:{language:'ru'|'en'}) {
+  const en=language==='en';
   const [tab, setTab] = useState<Tab>('worldCup');
   const [selectedPlayer, setSelectedPlayer] = useState<PlayerCardData | null>(null);
   const standard: Partial<Record<Tab, WorldItem[]>> = { players, clubs, coaches };
@@ -15,10 +16,10 @@ export function WorldScreen() {
   const isCards = tab === 'worldCup' || tab === 'season';
   return (
     <section className="world-screen">
-      <div className="world-heading"><div><div className="eyebrow"><span /> Учись у лучших</div><h1>Футбольный мир</h1><p>Карточки лидеров, сильные клубы и лучшие футбольные тренеры.</p></div><div className="award-stamp">FM<br/><strong>2026</strong></div></div>
+      <div className="world-heading"><div><div className="eyebrow"><span /> {en?'Learn from the best':'Учись у лучших'}</div><h1>{en?'Football world':'Футбольный мир'}</h1><p>{en?'Top player cards, legendary clubs and the best football coaches.':'Карточки лидеров, сильные клубы и лучшие футбольные тренеры.'}</p></div><div className="award-stamp">FM<br/><strong>2026</strong></div></div>
       <div className="world-tabs">{tabs.map((item)=><button className={tab===item.id?'active':''} onClick={()=>setTab(item.id)} key={item.id}>{item.label}</button>)}</div>
       {isCards ? <div className="player-card-grid">{cards.map((card)=><PlayerCard card={card} onClick={()=>setSelectedPlayer(card)} key={`${tab}-${card.name}`}/>)}</div> : <div className="world-grid">{standard[tab]?.map((item,index)=><article className="world-card" key={item.name}><span className="rank">0{index+1}</span><div className={`world-avatar ${item.logo?`world-avatar--logo ${logoClass(item)}`:''} ${item.photo?'world-avatar--photo':''}`} style={{background:item.logo?'rgba(255,255,255,.94)':item.color}}>{item.photo?<img src={item.photo} alt={item.name}/>:item.logo?<img src={item.logo} alt={`Логотип ${item.name}`}/>:item.mark}</div><div><h2>{item.name}</h2><p>{item.meta}</p><span className="fact">★ {item.fact}</span></div></article>)}</div>}
-      <p className="data-note">{isCards ? 'Турнирные данные FIFA и UEFA. Статистика ЧМ обновлена 14 июля 2026.' : 'Данные о наградах: официальные итоги FIFA и UEFA.'}</p>
+      <p className="data-note">{isCards ? (en?'FIFA and UEFA tournament data. World Cup stats updated July 14, 2026.':'Турнирные данные FIFA и UEFA. Статистика ЧМ обновлена 14 июля 2026.') : (en?'Awards data based on official FIFA and UEFA results.':'Данные о наградах: официальные итоги FIFA и UEFA.')}</p>
       {selectedPlayer && <PlayerDetailsModal card={selectedPlayer} onClose={()=>setSelectedPlayer(null)}/>} 
     </section>
   );
