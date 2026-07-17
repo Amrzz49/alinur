@@ -9,6 +9,7 @@ type Disc = {
   team?: "blue" | "red";
 };
 type Difficulty = "easy" | "medium" | "hard";
+type OpponentMode = "bot" | "friend";
 const aiSettings: Record<
   Difficulty,
   { speed: number; error: number; delay: number }
@@ -57,13 +58,15 @@ export function FieldCapsMatch({
     goalLockedRef = useRef(false),
     celebratingRef = useRef(false),
     difficultyRef = useRef<Difficulty>("medium"),
+    opponentRef = useRef<OpponentMode>("bot"),
     aiAimRef = useRef<{ cap: Disc; angle: number; speed: number } | null>(null),
     aiShotRef = useRef(false);
   const [score, setScore] = useState({ blue: 0, red: 0 }),
     [turn, setTurn] = useState<"blue" | "red">("blue"),
     [message, setMessage] = useState("Потяни синюю фишку назад и отпусти"),
     [winner, setWinner] = useState<"blue" | "red" | null>(null),
-    [difficulty, setDifficulty] = useState<Difficulty>("medium");
+    [difficulty, setDifficulty] = useState<Difficulty>("medium"),
+    [opponent,setOpponent]=useState<OpponentMode>("bot");
   const restart = () => {
     setScore({ blue: 0, red: 0 });
     setWinner(null);
@@ -82,6 +85,7 @@ export function FieldCapsMatch({
     setDifficulty(level);
     restart();
   };
+  const changeOpponent=(mode:OpponentMode)=>{opponentRef.current=mode;setOpponent(mode);restart()};
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -130,7 +134,7 @@ export function FieldCapsMatch({
         if (next[side] >= 3) {
           setWinner(side);
           turnRef.current = "red";
-          if (side === "blue") onWin();
+          if (side === "blue"&&opponentRef.current==="bot") onWin();
           setMessage(
             side === "blue"
               ? "ПОБЕДА! Ты получил $25 🏆"
@@ -148,7 +152,7 @@ export function FieldCapsMatch({
             setMessage(
               kickoff === "blue"
                 ? "Ты пропустил — начинай с центра"
-                : "AI пропустил — его розыгрыш с центра",
+                : opponentRef.current==="bot"?"AI пропустил — его розыгрыш с центра":"Игрок справа пропустил — его ход",
             );
           }, 1100);
         }
@@ -326,7 +330,7 @@ export function FieldCapsMatch({
         ctx.fillStyle = "#fff";
         ctx.font = "800 14px Inter";
         ctx.textAlign = "center";
-        ctx.fillText(cap.team === "blue" ? "YOU" : "AI", cap.x, cap.y + 5);
+        ctx.fillText(cap.team === "blue" ? (opponentRef.current==="friend"?"P1":"YOU") : (opponentRef.current==="friend"?"P2":"AI"), cap.x, cap.y + 5);
       });
       ctx.save();
       ctx.beginPath();
@@ -422,7 +426,7 @@ export function FieldCapsMatch({
         return;
       }
       const moving = all.some((item) => Math.hypot(item.vx, item.vy) > 0.12);
-      if (!moving && turnRef.current === "red" && !aiTimer) {
+      if (!moving && turnRef.current === "red" && opponentRef.current==="bot" && !aiTimer) {
         if (aiShotRef.current) {
           aiShotRef.current = false;
           turnRef.current = "blue";
@@ -500,16 +504,16 @@ export function FieldCapsMatch({
     };
   };
   const down = (event: React.PointerEvent<HTMLCanvasElement>) => {
-    if (turnRef.current !== "blue") return;
-    const ball = matchRef.current.ball;
-    if (Math.hypot(ball.vx, ball.vy) > 0.12) {
+    if (opponentRef.current==="bot"&&turnRef.current !== "blue") return;
+    const pieces=[...matchRef.current.caps,matchRef.current.ball];
+    if (pieces.some((item)=>Math.hypot(item.vx,item.vy)>0.12)) {
       setMessage("Подожди, пока мяч остановится");
       return;
     }
     const p = point(event),
       cap = matchRef.current.caps.find(
         (item) =>
-          item.team === "blue" &&
+          item.team === turnRef.current &&
           Math.hypot(item.x - p.x, item.y - p.y) < item.r + 12,
       );
     if (cap) {
@@ -542,9 +546,10 @@ export function FieldCapsMatch({
     drag.cap.vx = Math.cos(angle) * speed;
     drag.cap.vy = Math.sin(angle) * speed;
     dragRef.current = null;
-    turnRef.current = "red";
-    setTurn("red");
-    setMessage("Ход соперника...");
+    const nextTurn=turnRef.current==="blue"?"red":"blue";
+    turnRef.current = nextTurn;
+    setTurn(nextTurn);
+    setMessage(opponentRef.current==="bot"?"Ход соперника...":nextTurn==="blue"?"Ход игрока слева":"Ход игрока справа");
   };
   const cancelDrag = () => {
     if (!dragRef.current) return;
@@ -579,19 +584,24 @@ export function FieldCapsMatch({
             <h1>Field Caps</h1>
             <div className={`caps-turn caps-turn--${turn}`}>
               <i />
-              {turn === "blue" ? "ТВОЙ ХОД" : "ХОД AI"}
+              {opponent==="friend"?(turn === "blue" ? "ХОД ИГРОКА СЛЕВА" : "ХОД ИГРОКА СПРАВА"):(turn === "blue" ? "ТВОЙ ХОД" : "ХОД AI")}
             </div>
           </div>
         </div>
         <div className="caps-score">
-          <span>ТЫ</span>
+          <span>{opponent==="friend"?'СЛЕВА':'ТЫ'}</span>
           <strong>
             {score.blue} : {score.red}
           </strong>
-          <span>AI</span>
+          <span>{opponent==="friend"?'СПРАВА':'AI'}</span>
         </div>
       </header>
       <div className="caps-difficulty">
+        <span>РЕЖИМ</span>
+        <button className={opponent === "bot" ? "active" : ""} onClick={() => changeOpponent("bot")}>Против бота</button>
+        <button className={opponent === "friend" ? "active" : ""} onClick={() => changeOpponent("friend")}>Против друга</button>
+      </div>
+      {opponent==="bot"&&<div className="caps-difficulty">
         <span>СЛОЖНОСТЬ AI</span>
         <button
           className={difficulty === "easy" ? "active" : ""}
@@ -611,7 +621,7 @@ export function FieldCapsMatch({
         >
           Сложный
         </button>
-      </div>
+      </div>}
       <div className="caps-canvas-wrap">
         <canvas
           ref={canvasRef}
@@ -630,9 +640,9 @@ export function FieldCapsMatch({
         {winner && (
           <div className="caps-finish">
             <span>{winner === "blue" ? "🏆" : "⚽"}</span>
-            <h2>{winner === "blue" ? "Ты победил!" : "Победил соперник"}</h2>
+            <h2>{opponent==="friend"?(winner === "blue" ? "Победил игрок слева!" : "Победил игрок справа!"):(winner === "blue" ? "Ты победил!" : "Победил соперник")}</h2>
             <p>
-              {winner === "blue"
+              {winner === "blue"&&opponent==="bot"
                 ? `+$25 · Финальный счёт ${score.blue} : ${score.red}`
                 : `Финальный счёт: ${score.blue} : ${score.red}`}
             </p>
@@ -643,7 +653,7 @@ export function FieldCapsMatch({
       </div>
       <p className={`caps-message caps-message--${turn}`}>{message}</p>
       <div className="caps-rules">
-        <span>👆 Зажми фишку</span>
+        <span>👆 {opponent==="friend"?'Игроки ходят по очереди':'Зажми фишку'}</span>
         <span>↙ Оттяни назад</span>
         <span>⚡ Первый до 3 голов побеждает</span>
       </div>
