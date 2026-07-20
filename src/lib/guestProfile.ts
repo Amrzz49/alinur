@@ -1,9 +1,9 @@
 import { defaultProgress, type Activity, type PlayerProgress, type Skills } from './playerProgress';
 
-export type GuestProfile={coins:number;dailyStreak:number;lastDailyReward:string|null;dailyTaskDate:string;progress:PlayerProgress};
+export type GuestProfile={coins:number;unlockedGames:string[];dailyStreak:number;lastDailyReward:string|null;dailyTaskDate:string;progress:PlayerProgress};
 const key='fieldmind-guest-profile';
 const today=()=>new Date().toISOString().slice(0,10);
-const initial:GuestProfile={coins:150,dailyStreak:0,lastDailyReward:null,dailyTaskDate:today(),progress:defaultProgress};
+const initial:GuestProfile={coins:150,unlockedGames:[],dailyStreak:0,lastDailyReward:null,dailyTaskDate:today(),progress:defaultProgress};
 
 export function loadGuestProfile():GuestProfile{
   const saved=localStorage.getItem(key);

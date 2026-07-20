@@ -59,6 +59,7 @@ export function FieldCapsMatch({
     celebratingRef = useRef(false),
     difficultyRef = useRef<Difficulty>("medium"),
     opponentRef = useRef<OpponentMode>("bot"),
+    matchVersionRef = useRef(0),
     aiAimRef = useRef<{ cap: Disc; angle: number; speed: number } | null>(null),
     aiShotRef = useRef(false);
   const [score, setScore] = useState({ blue: 0, red: 0 }),
@@ -68,6 +69,7 @@ export function FieldCapsMatch({
     [difficulty, setDifficulty] = useState<Difficulty>("medium"),
     [opponent,setOpponent]=useState<OpponentMode>("bot");
   const restart = () => {
+    matchVersionRef.current += 1;
     setScore({ blue: 0, red: 0 });
     setWinner(null);
     matchRef.current = createMatch();
@@ -141,7 +143,9 @@ export function FieldCapsMatch({
               : "Матч окончен — соперник забил 3 гола",
           );
         } else {
+          const scheduledVersion=matchVersionRef.current;
           goalTimer = window.setTimeout(() => {
+            if(scheduledVersion!==matchVersionRef.current)return;
             const kickoff = side === "blue" ? "red" : "blue";
             matchRef.current = createMatch();
             dragRef.current = null;
@@ -477,7 +481,9 @@ export function FieldCapsMatch({
           Math.atan2(contactY - cap.y, contactX - cap.x) +
           (Math.random() - 0.5) * settings.error;
         aiAimRef.current = { cap, angle, speed: settings.speed };
+        const scheduledVersion=matchVersionRef.current;
         aiTimer = window.setTimeout(() => {
+          if(scheduledVersion!==matchVersionRef.current){aiTimer=0;return;}
           cap.vx = Math.cos(angle) * settings.speed;
           cap.vy = Math.sin(angle) * settings.speed;
           aiAimRef.current = null;
@@ -504,6 +510,7 @@ export function FieldCapsMatch({
     };
   };
   const down = (event: React.PointerEvent<HTMLCanvasElement>) => {
+    if(winner||celebratingRef.current)return;
     if (opponentRef.current==="bot"&&turnRef.current !== "blue") return;
     const pieces=[...matchRef.current.caps,matchRef.current.ball];
     if (pieces.some((item)=>Math.hypot(item.vx,item.vy)>0.12)) {

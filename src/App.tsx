@@ -97,7 +97,7 @@ export default function App() {
       {page === 'match' && <FieldCapsMatch onBack={()=>setPage('home')} onWin={()=>{void rewardMatchWin()}}/>}
       {page === 'world' && <WorldScreen language={settings.language} />}
       {page === 'quiz' && <QuizScreen />}
-      {page === 'games' && <GamesScreen language={settings.language} onCoinsChange={setCoins} onGameComplete={()=>{void trackActivity('game')}} />}
+      {page === 'games' && <GamesScreen language={settings.language} isGuest={isGuest&&!user} onCoinsChange={setCoins} onGameComplete={()=>{void trackActivity('game')}} />}
       {page === 'auth' && <Auth language={settings.language} onGuest={enterAsGuest} />}
       {page === 'training' && (finished ? <GameComplete score={score} total={challenges.length} decisions={trainingDecisions} language={settings.language} onRestart={restart} /> : (
         <section className="game-layout">
