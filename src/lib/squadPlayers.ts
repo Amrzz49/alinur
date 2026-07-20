@@ -34,4 +34,29 @@ export const squadPlayers:SquadPlayer[]=[
   {id:14,name:'П. Кубарси',position:'DEF',rating:86,country:'🇪🇸',club:'Barcelona',photo:cubarsi,initials:'PC'},
   {id:15,name:'Доннарумма',position:'GK',rating:90,country:'🇮🇹',club:'Man City',photo:donnarumma,initials:'GD'},
   {id:16,name:'Т. Куртуа',position:'GK',rating:90,country:'🇧🇪',club:'Real Madrid',photo:courtois,initials:'TC'},
+  {id:17,name:'Алиссон',position:'GK',rating:89,country:'🇧🇷',club:'Liverpool',initials:'AB'},
+  {id:18,name:'Я. Облак',position:'GK',rating:88,country:'🇸🇮',club:'Atlético',initials:'JO'},
+  {id:19,name:'Д. Райя',position:'GK',rating:87,country:'🇪🇸',club:'Arsenal',initials:'DR'},
+  {id:20,name:'М. Нойер',position:'GK',rating:88,country:'🇩🇪',club:'Bayern',initials:'MN'},
+  {id:21,name:'У. Салиба',position:'DEF',rating:89,country:'🇫🇷',club:'Arsenal',initials:'WS'},
+  {id:22,name:'А. Бастони',position:'DEF',rating:88,country:'🇮🇹',club:'Inter',initials:'AB'},
+  {id:23,name:'А. Рюдигер',position:'DEF',rating:88,country:'🇩🇪',club:'Real Madrid',initials:'AR'},
+  {id:24,name:'Р. Диаш',position:'DEF',rating:89,country:'🇵🇹',club:'Man City',initials:'RD'},
+  {id:25,name:'Т. Эрнандес',position:'DEF',rating:87,country:'🇫🇷',club:'Milan',initials:'TH'},
+  {id:26,name:'Ф. Вальверде',position:'MID',rating:90,country:'🇺🇾',club:'Real Madrid',initials:'FV'},
+  {id:27,name:'К. Палмер',position:'MID',rating:89,country:'🏴',club:'Chelsea',initials:'CP'},
+  {id:28,name:'М. Эдегор',position:'MID',rating:89,country:'🇳🇴',club:'Arsenal',initials:'MO'},
+  {id:29,name:'Д. Райс',position:'MID',rating:88,country:'🏴',club:'Arsenal',initials:'DR'},
+  {id:30,name:'Винисиус',position:'ATT',rating:94,country:'🇧🇷',club:'Real Madrid',initials:'VJ'},
+  {id:31,name:'Л. Ямаль',position:'ATT',rating:92,country:'🇪🇸',club:'Barcelona',initials:'LY'},
 ];
+
+export type DuelStat='attack'|'control'|'defence';
+export const playerStats=(player:SquadPlayer):Record<DuelStat,number>=>{
+  const bonus:Record<SquadPosition,Record<DuelStat,number>>={
+    GK:{attack:-15,control:-5,defence:5},DEF:{attack:-7,control:0,defence:4},
+    MID:{attack:0,control:4,defence:0},ATT:{attack:5,control:2,defence:-8},
+  };
+  const offset=(player.id%5)-2;
+  return {attack:player.rating+bonus[player.position].attack+offset,control:player.rating+bonus[player.position].control-offset,defence:player.rating+bonus[player.position].defence};
+};
