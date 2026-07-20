@@ -33,6 +33,8 @@ export default function App() {
   const [user,setUser]=useState<User|null>(null);
   const [isGuest,setIsGuest]=useState(()=>localStorage.getItem('fieldmind-guest')==='true');
   const [coins,setCoins]=useState<number|null>(null);
+  const [unlockedGames,setUnlockedGames]=useState<string[]>([]);
+  const [gameProfileReady,setGameProfileReady]=useState(false);
   const [dailyStreak,setDailyStreak]=useState(0);
   const [claimedToday,setClaimedToday]=useState(false);
   const [trainingDecisions,setTrainingDecisions]=useState<TrainingDecision[]>([]);
@@ -48,17 +50,18 @@ export default function App() {
     return ()=>data.subscription.unsubscribe();
   },[]);
 
-  useEffect(()=>{if(!isGuest||user)return;const guest=loadGuestProfile();setCoins(guest.coins);setDailyStreak(guest.dailyStreak);setClaimedToday(guest.lastDailyReward===new Date().toISOString().slice(0,10));setPlayerProgress(guest.progress)},[isGuest,user]);
+  useEffect(()=>{if(!isGuest||user)return;const guest=loadGuestProfile();setCoins(guest.coins);setUnlockedGames(guest.unlockedGames);setDailyStreak(guest.dailyStreak);setClaimedToday(guest.lastDailyReward===new Date().toISOString().slice(0,10));setPlayerProgress(guest.progress);setGameProfileReady(true)},[isGuest,user]);
 
   useEffect(()=>{
-    if(!user){setCoins(null);return;}
-    loadGameProfile().then(async(profile)=>{setCoins(profile?.coins??null);setDailyStreak(profile?.dailyStreak??0);setClaimedToday(profile?.lastDailyReward===new Date().toISOString().slice(0,10));const [progress,savedSettings]=await Promise.all([loadPlayerProgress(),loadUserSettings()]);if(progress)setPlayerProgress(progress);setSettings(savedSettings)}).catch(()=>setCoins(null));
-  },[user]);
+    if(!user){if(!isGuest){setCoins(null);setUnlockedGames([]);setGameProfileReady(false)}return;}
+    setGameProfileReady(false);
+    loadGameProfile().then(async(profile)=>{setCoins(profile?.coins??null);setUnlockedGames(profile?.unlockedGames??[]);setDailyStreak(profile?.dailyStreak??0);setClaimedToday(profile?.lastDailyReward===new Date().toISOString().slice(0,10));const [progress,savedSettings]=await Promise.all([loadPlayerProgress(),loadUserSettings()]);if(progress)setPlayerProgress(progress);setSettings(savedSettings)}).catch(()=>setCoins(null)).finally(()=>setGameProfileReady(true));
+  },[user,isGuest]);
 
   useEffect(()=>{document.documentElement.style.setProperty('--app-brightness',String(settings.brightness/100));document.documentElement.dataset.textSize=settings.textSize;document.documentElement.dataset.reducedMotion=String(settings.reducedMotion);document.documentElement.lang=settings.language},[settings]);
   useEffect(()=>{if(!showSaved)return;const timer=window.setTimeout(()=>setShowSaved(false),2600);return()=>clearTimeout(timer)},[showSaved,settings]);
   const changeSettings=async(next:UserSettings)=>{setSettings(next);try{if(isGuest)localStorage.setItem('fieldmind-guest-settings',JSON.stringify(next));else await saveUserSettings(next);setShowSaved(true)}catch{setShowSaved(false)}};
-  const enterAsGuest=()=>{localStorage.setItem('fieldmind-guest','true');const guest=loadGuestProfile();setCoins(guest.coins);setDailyStreak(guest.dailyStreak);setClaimedToday(guest.lastDailyReward===new Date().toISOString().slice(0,10));setPlayerProgress(guest.progress);setIsGuest(true);const saved=localStorage.getItem('fieldmind-guest-settings');if(saved)try{setSettings({...defaultSettings,...JSON.parse(saved) as UserSettings})}catch{localStorage.removeItem('fieldmind-guest-settings')}setPage('home')};
+  const enterAsGuest=()=>{localStorage.setItem('fieldmind-guest','true');const guest=loadGuestProfile();setCoins(guest.coins);setUnlockedGames(guest.unlockedGames);setDailyStreak(guest.dailyStreak);setClaimedToday(guest.lastDailyReward===new Date().toISOString().slice(0,10));setPlayerProgress(guest.progress);setGameProfileReady(true);setIsGuest(true);const saved=localStorage.getItem('fieldmind-guest-settings');if(saved)try{setSettings({...defaultSettings,...JSON.parse(saved) as UserSettings})}catch{localStorage.removeItem('fieldmind-guest-settings')}setPage('home')};
   const signOut=()=>{if(isGuest){localStorage.removeItem('fieldmind-guest');setIsGuest(false);setSettings(defaultSettings);setPage('welcome');return}void supabase.auth.signOut()};
 
   const trackActivity=async(activity:Activity,decisions:TrainingDecision[]=[])=>{
@@ -97,7 +100,7 @@ export default function App() {
       {page === 'match' && <FieldCapsMatch onBack={()=>setPage('home')} onWin={()=>{void rewardMatchWin()}}/>}
       {page === 'world' && <WorldScreen language={settings.language} />}
       {page === 'quiz' && <QuizScreen />}
-      {page === 'games' && <GamesScreen language={settings.language} isGuest={isGuest&&!user} onCoinsChange={setCoins} onGameComplete={()=>{void trackActivity('game')}} />}
+      {page === 'games' && <GamesScreen language={settings.language} isGuest={isGuest&&!user} initialProfile={gameProfileReady?{coins:coins??0,unlockedGames}:null} onCoinsChange={setCoins} onUnlockedGamesChange={setUnlockedGames} onGameComplete={()=>{void trackActivity('game')}} />}
       {page === 'auth' && <Auth language={settings.language} onGuest={enterAsGuest} />}
       {page === 'training' && (finished ? <GameComplete score={score} total={challenges.length} decisions={trainingDecisions} language={settings.language} onRestart={restart} /> : (
         <section className="game-layout">

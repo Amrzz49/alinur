@@ -4,7 +4,7 @@ import { GoalkeeperIQ } from './GoalkeeperIQ';
 import { PenaltyMind } from './PenaltyMind';
 import { SquadBuilder } from './SquadBuilder';
 import { VarChallenge } from './VarChallenge';
-import { loadGameProfile, saveGameProfile, type GameProfile } from '../lib/gameWallet';
+import { saveGameProfile, type GameProfile } from '../lib/gameWallet';
 import { loadGuestProfile, saveGuestProfile } from '../lib/guestProfile';
 
 type Game = 'menu' | 'penalty' | 'goalkeeper' | 'pass' | 'squad' | 'var';
@@ -18,19 +18,19 @@ const games:GameCard[]=[
   {id:'var',role:'ВИДЕОСУДЬЯ',title:'VAR Challenge',text:'Разбирай спорные эпизоды и выноси правильный вердикт.',cover:'VAR',price:200},
 ];
 
-export function GamesScreen({language,isGuest,onCoinsChange,onGameComplete}:{language:'ru'|'en';isGuest:boolean;onCoinsChange:(coins:number)=>void;onGameComplete:()=>void}) {
+export function GamesScreen({language,isGuest,initialProfile,onCoinsChange,onUnlockedGamesChange,onGameComplete}:{language:'ru'|'en';isGuest:boolean;initialProfile:GameProfile|null;onCoinsChange:(coins:number)=>void;onUnlockedGamesChange:(games:string[])=>void;onGameComplete:()=>void}) {
   const en=language==='en';
   const [game,setGame]=useState<Game>('menu');
-  const [profile,setProfile]=useState<GameProfile|null>(null);
-  const [profileLoading,setProfileLoading]=useState(true);
+  const [profile,setProfile]=useState<GameProfile|null>(initialProfile);
+  const profileLoading=!initialProfile;
   const [message,setMessage]=useState('');
-  useEffect(()=>{let active=true;setProfileLoading(true);if(isGuest){const guest=loadGuestProfile();const loaded={coins:guest.coins,unlockedGames:guest.unlockedGames};setProfile(loaded);onCoinsChange(loaded.coins);setProfileLoading(false);return()=>{active=false}}loadGameProfile().then((loaded)=>{if(!active)return;setProfile(loaded);if(loaded)onCoinsChange(loaded.coins)}).catch(()=>{if(active)setMessage('Не удалось загрузить баланс.')}).finally(()=>{if(active)setProfileLoading(false)});return()=>{active=false}},[isGuest,onCoinsChange]);
+  useEffect(()=>{if(initialProfile)setProfile(initialProfile)},[initialProfile]);
   const save=(updated:GameProfile)=>{if(isGuest){const guest=loadGuestProfile();saveGuestProfile({...guest,coins:updated.coins,unlockedGames:updated.unlockedGames});return Promise.resolve(updated)}return saveGameProfile(updated)};
   const reward=()=>{
     onGameComplete();
     if(!profile)return;
     const updated={...profile,coins:profile.coins+50};
-    setProfile(updated);onCoinsChange(updated.coins);setMessage('+$50 за завершённую игру!');
+    setProfile(updated);onCoinsChange(updated.coins);onUnlockedGamesChange(updated.unlockedGames);setMessage('+$50 за завершённую игру!');
     save(updated).catch(()=>setMessage('Не удалось сохранить награду.'));
   };
   const open=(item:GameCard)=>{
@@ -38,7 +38,7 @@ export function GamesScreen({language,isGuest,onCoinsChange,onGameComplete}:{lan
     if(!profile){setMessage('Войди в аккаунт, чтобы покупать игры.');return;}
     if(profile.coins<item.price){setMessage(`Нужно ещё $${item.price-profile.coins}. Проходи бесплатные игры!`);return;}
     const updated={coins:profile.coins-item.price,unlockedGames:[...profile.unlockedGames,item.id]};
-    setProfile(updated);onCoinsChange(updated.coins);setMessage(`${item.title} разблокирована!`);
+    setProfile(updated);onCoinsChange(updated.coins);onUnlockedGamesChange(updated.unlockedGames);setMessage(`${item.title} разблокирована!`);
     save(updated).then(()=>setGame(item.id)).catch(()=>setMessage('Покупка не сохранилась. Попробуй ещё раз.'));
   };
   const back=()=>setGame('menu');
