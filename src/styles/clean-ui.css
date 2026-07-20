@@ -1,0 +1,32 @@
+:root{--ui-bg:#071534;--ui-surface:rgba(10,28,64,.9);--ui-surface-soft:rgba(255,255,255,.07);--ui-line:rgba(255,255,255,.13);--ui-text:#f7f9ff;--ui-muted:#aab6cf;--ui-accent:#4f8cff;--ui-radius:18px}
+body{background-color:var(--ui-bg);background-image:linear-gradient(90deg,rgba(3,11,32,.72),rgba(3,11,32,.48)),url('../assets/ucl-starball-official.jpeg');background-position:center top}
+body::before{background:linear-gradient(180deg,rgba(4,13,37,.1),rgba(4,13,37,.72))}
+.app-shell{max-width:1280px;padding-inline:clamp(16px,3vw,40px)}
+.topbar{position:sticky;z-index:30;top:0;height:72px;padding-inline:4px;border-color:var(--ui-line);background:rgba(5,17,45,.88);backdrop-filter:blur(18px)}
+.brand__mark{width:34px;height:34px;background:#fff;color:#0b1835;box-shadow:none}
+.topbar .brand .brand__name{font-size:19px;text-shadow:none}
+.nav-links{gap:2px}.nav-links button{min-height:38px;padding:8px 12px;border-radius:10px;color:var(--ui-muted);font-size:12px}.nav-links button:hover,.nav-links button.active{background:rgba(255,255,255,.1);color:#fff}
+.score-pill,.header-wallet,.header-xp,.account-login,.guest-entry__button{min-height:36px;border:1px solid var(--ui-line);background:var(--ui-surface-soft);color:#fff;box-shadow:none}
+.account-button{box-shadow:none}
+h1{font-size:clamp(42px,6vw,76px);line-height:.96;letter-spacing:-.04em;text-transform:none}
+.eyebrow,.step-label{color:#9fc0ff}.eyebrow span{background:var(--ui-accent);box-shadow:none}
+.hero-copy h1 em{color:#8fb2ff}.hero-copy>p,.lead,.world-heading p{color:var(--ui-muted)}
+.home-screen{gap:clamp(38px,6vw,72px)}
+.play-button,.next-button,.auth-submit{border:0;background:var(--ui-accent);box-shadow:none}.explore-button{border-color:var(--ui-line);background:var(--ui-surface-soft);color:#fff}
+.play-button:hover,.next-button:hover,.auth-submit:hover,.explore-button:hover{opacity:1;filter:brightness(1.08)}
+.hero-numbers{gap:28px;margin-top:34px}.hero-numbers strong{font-family:Inter,sans-serif}.hero-numbers span{color:var(--ui-muted)}
+.mini-pitch{border-width:4px;border-radius:var(--ui-radius);box-shadow:0 22px 55px rgba(0,0,0,.3);transform:none}.floating-card{right:-10px;bottom:-18px;border:1px solid var(--ui-line);border-radius:14px;background:#fff;color:#111;box-shadow:0 16px 40px rgba(0,0,0,.25)}
+.decision-card,.complete-screen,.auth-card,.quiz-card{border:1px solid var(--ui-line);border-radius:var(--ui-radius);background:rgba(255,255,255,.96);box-shadow:0 20px 55px rgba(0,0,0,.22)}
+.choice{border-radius:12px;background:#f7f8fb}.coach-tip,.pro-note,.final-score,.choice__icon{border-radius:12px}
+.games-screen,.world-screen,.quiz-screen{padding-top:42px}
+.game-library{gap:16px}.game-library>button{border:1px solid var(--ui-line);border-radius:var(--ui-radius);background:var(--ui-surface);box-shadow:none}.game-library>button:hover{border-color:rgba(143,178,255,.65);box-shadow:0 16px 35px rgba(0,0,0,.22);transform:translateY(-3px)}
+.game-cover{height:185px;margin-bottom:18px;background:linear-gradient(180deg,#12356d 0 58%,#17654c 58%)}
+.game-library small,.game-library strong{color:#9fc0ff}.game-library p{color:var(--ui-muted)}
+.world-tabs{overflow-x:auto;padding-bottom:4px}.world-tabs button{flex:none;border-color:var(--ui-line);background:var(--ui-surface-soft);color:var(--ui-muted)}.world-tabs button.active{border-color:#fff;background:#fff;color:#111}
+.world-card{border:1px solid var(--ui-line);border-radius:var(--ui-radius);background:var(--ui-surface);box-shadow:none}.world-card p{color:var(--ui-muted)}.fact{color:#9fc0ff}
+.player-card{border-radius:var(--ui-radius);overflow:hidden}
+.profile-menu{border:1px solid #e4e7ec;border-radius:16px;box-shadow:0 20px 55px rgba(0,0,0,.3)}
+.caps-canvas-wrap{border-width:4px;border-radius:var(--ui-radius);box-shadow:0 22px 55px rgba(0,0,0,.3)}
+.caps-message{border-radius:0 0 var(--ui-radius) var(--ui-radius)}
+@media(max-width:900px){.header-xp{display:none}.nav-links button{padding-inline:9px}.guest-entry__button{display:none}}
+@media(max-width:650px){.topbar{height:64px}.brand__mark{width:31px;height:31px}.topbar .brand .brand__name{font-size:17px}.header-wallet{min-width:auto;padding-inline:9px}.nav-links{left:10px;right:10px;bottom:10px;border:1px solid var(--ui-line);border-radius:16px;background:rgba(5,17,45,.96);box-shadow:0 12px 35px rgba(0,0,0,.3)}.nav-links button{font-size:10px}.home-screen{min-height:auto;padding:54px 0 90px}.games-screen,.world-screen,.quiz-screen{padding-top:32px}.game-library{gap:14px}}
