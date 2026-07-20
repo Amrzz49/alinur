@@ -89,7 +89,7 @@ export default function App() {
       {!authReady&&<div className="app-loading" aria-label="Loading"/>}
       {authReady&&<>
       {showSaved&&<SavedToast language={settings.language}/>}
-      {page!=='welcome'&&<SiteHeader page={page} score={score} coins={coins} playerProgress={playerProgress} settings={settings} dailyStreak={dailyStreak} claimedToday={claimedToday} progress={`${challengeIndex + 1} / ${challenges.length}`} userEmail={user?.email} userName={user?.user_metadata.name as string | undefined} isGuest={isGuest&&!user} onGuest={enterAsGuest} onSettingsChange={changeSettings} onCoinsChange={setCoins} onDailyChange={(streak)=>{setDailyStreak(streak);setClaimedToday(true)}} onSignOut={signOut} onNavigate={setPage} />}
+      {page!=='welcome'&&<SiteHeader page={page} score={score} coins={coins} playerProgress={playerProgress} settings={settings} dailyStreak={dailyStreak} claimedToday={claimedToday} progress={`${challengeIndex + 1} / ${challenges.length}`} userEmail={user?.email} userName={user?.user_metadata.name as string | undefined} userAvatar={user?.user_metadata.avatar_url as string | undefined} isGuest={isGuest&&!user} onGuest={enterAsGuest} onSettingsChange={changeSettings} onCoinsChange={setCoins} onDailyChange={(streak)=>{setDailyStreak(streak);setClaimedToday(true)}} onSignOut={signOut} onNavigate={setPage} />}
       {page==='welcome'&&<WelcomeScreen language={settings.language} onGuest={enterAsGuest} onEmail={()=>setPage('auth')}/>}
       {page === 'home' && <HomeScreen language={settings.language} onMatch={()=>setPage('match')} onExplore={() => setPage('world')} />}
       {page === 'match' && <FieldCapsMatch onBack={()=>setPage('home')} onWin={()=>{void rewardMatchWin()}}/>}

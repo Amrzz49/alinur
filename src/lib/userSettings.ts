@@ -1,7 +1,7 @@
 import { supabase } from './supabase';
 
-export type UserSettings={language:'ru'|'en';brightness:80|100|115;textSize:'normal'|'large';reducedMotion:boolean;sound:boolean;cameraAccess:boolean};
-export const defaultSettings:UserSettings={language:'ru',brightness:100,textSize:'normal',reducedMotion:false,sound:true,cameraAccess:false};
+export type UserSettings={language:'ru'|'en';brightness:80|100|115;textSize:'normal'|'large';reducedMotion:boolean;sound:boolean};
+export const defaultSettings:UserSettings={language:'ru',brightness:100,textSize:'normal',reducedMotion:false,sound:true};
 
 export async function loadUserSettings():Promise<UserSettings>{
   const {data:auth}=await supabase.auth.getUser();if(!auth.user)return defaultSettings;
