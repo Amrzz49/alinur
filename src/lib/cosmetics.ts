@@ -11,5 +11,13 @@ export const cosmetics:CosmeticItem[]=[
   {id:'stadium_green',category:'stadium',name:'Классический стадион',price:0,preview:'▥'},{id:'stadium_night',category:'stadium',name:'Ночной стадион',price:200,preview:'🌙'},{id:'stadium_royal',category:'stadium',name:'Королевская арена',price:250,preview:'🏟'},
   {id:'frame_none',category:'frame',name:'Без рамки',price:0,preview:'○'},{id:'frame_gold',category:'frame',name:'Золотая рамка',price:100,preview:'◎'},{id:'frame_blue',category:'frame',name:'Синяя рамка',price:80,preview:'◉'},
 ];
-export async function buyCosmetic(id:string){const {data,error}=await supabase.rpc('buy_cosmetic',{item_id:id});if(error)throw error;return data?.[0] as {coins:number;owned_cosmetics:string[];equipped_cosmetics:EquippedCosmetics};}
+type PurchaseResult={coins:number;owned_cosmetics:string[];equipped_cosmetics:EquippedCosmetics};
+const purchaseError=(message:string)=>message.includes('Not enough coins')?'Недостаточно монет.':message.includes('Sign in')?'Нужно войти в аккаунт.':'Покупка не удалась. Попробуй ещё раз.';
+export async function buyCosmetic(id:string){
+  const {data,error}=await supabase.rpc('buy_cosmetic',{item_id:id});
+  if(error)throw new Error(purchaseError(error.message));
+  const result=data?.[0] as PurchaseResult|undefined;
+  if(!result)throw new Error('Покупка не сохранилась. Попробуй ещё раз.');
+  return result;
+}
 export async function equipCosmetic(id:string,category:CosmeticCategory){const {data,error}=await supabase.rpc('equip_cosmetic',{item_id:id,category});if(error)throw error;return data as EquippedCosmetics;}
