@@ -24,30 +24,39 @@ export function GamesScreen({language,isGuest,initialProfile,loadError,onRetry,o
   const [profile,setProfile]=useState<GameProfile|null>(initialProfile);
   const profileLoading=!initialProfile;
   const [message,setMessage]=useState('');
+  const [busy,setBusy]=useState(false);
   useEffect(()=>{if(initialProfile)setProfile(initialProfile)},[initialProfile]);
   const save=(updated:GameProfile)=>{if(isGuest){const guest=loadGuestProfile();saveGuestProfile({...guest,coins:updated.coins,unlockedGames:updated.unlockedGames});return Promise.resolve(updated)}return saveGameProfile(updated)};
-  const reward=()=>{
-    onGameComplete();
+  const reward=async()=>{
     if(!profile)return;
     const updated={...profile,coins:profile.coins+50};
-    setProfile(updated);onCoinsChange(updated.coins);onUnlockedGamesChange(updated.unlockedGames);setMessage('+$50 за завершённую игру!');
-    save(updated).catch(()=>setMessage('Не удалось сохранить награду.'));
+    try{
+      await save(updated);
+      setProfile(updated);onCoinsChange(updated.coins);onUnlockedGamesChange(updated.unlockedGames);
+      onGameComplete();setMessage('+$50 за завершённую игру!');
+    }catch{setMessage('Не удалось сохранить награду. Монеты не списаны и не добавлены.')}
   };
-  const open=(item:GameCard)=>{
+  const open=async(item:GameCard)=>{
+    if(busy)return;
     if(!item.price||profile?.unlockedGames.includes(item.id)){setGame(item.id);return;}
     if(!profile){setMessage('Войди в аккаунт, чтобы покупать игры.');return;}
     if(profile.coins<item.price){setMessage(`Нужно ещё $${item.price-profile.coins}. Проходи бесплатные игры!`);return;}
     const updated={...profile,coins:profile.coins-item.price,unlockedGames:[...profile.unlockedGames,item.id]};
-    setProfile(updated);onCoinsChange(updated.coins);onUnlockedGamesChange(updated.unlockedGames);setMessage(`${item.title} разблокирована!`);
-    save(updated).then(()=>setGame(item.id)).catch(()=>setMessage('Покупка не сохранилась. Попробуй ещё раз.'));
+    setBusy(true);
+    try{
+      await save(updated);
+      setProfile(updated);onCoinsChange(updated.coins);onUnlockedGamesChange(updated.unlockedGames);
+      setMessage(`${item.title} разблокирована!`);setGame(item.id);
+    }catch{setMessage('Покупка не сохранилась. Монеты не списаны — попробуй ещё раз.')}
+    finally{setBusy(false)}
   };
   const back=()=>setGame('menu');
   if(game==='penalty')return <PenaltyMind onBack={back} onComplete={reward}/>;
   if(game==='goalkeeper')return <GoalkeeperIQ onBack={back} onComplete={reward}/>;
   if(game==='pass')return <FindThePass onBack={back} onComplete={reward}/>;
   if(game==='squad')return <SquadBuilder onBack={back} onComplete={reward}/>;
-  if(game==='var')return <VarChallenge onBack={back}/>;
+  if(game==='var')return <VarChallenge onBack={back} onComplete={reward}/>;
   if(loadError)return <section className="games-screen games-load-error"><span>⚠</span><h2>Прогресс не пропал</h2><p>{loadError}</p><button onClick={onRetry}>Загрузить снова</button></section>;
   if(profileLoading)return <section className="games-screen games-loading"><div className="games-loading__title"/><div className="game-library">{[1,2,3].map((item)=><div className="game-skeleton" key={item}><i/><span/><span/></div>)}</div></section>;
-  return <section className="games-screen"><div className="games-title"><div><div className="eyebrow"><span/> {en?'Game zone':'Игровая зона'}</div><h1>{en?'Choose a game':'Выбери игру'}</h1><p>{en?'Start with Penalty Mind, earn coins and unlock new modes.':'Начни с Penalty Mind, зарабатывай монеты и открывай новые режимы.'}</p></div><div className="coin-wallet"><span>FIELD COINS</span><strong>${profile?.coins??'—'}</strong></div></div>{message&&<div className="wallet-message">{message}</div>}<div className="game-library">{games.map((item)=>{const locked=Boolean(item.price&&!profile?.unlockedGames.includes(item.id));return <button className={locked?'game-locked':''} onClick={()=>open(item)} key={item.id}><div className={`game-cover game-cover--${item.id}`}><span>{item.cover}</span>{locked&&<b>🔒</b>}</div><small>{item.role}</small><h2>{item.title}</h2><p>{item.text}</p><strong>{locked?`${en?'Unlock':'Разблокировать'} · $${item.price}`:(en?'Play →':'Играть →')}</strong></button>})}</div><p className="reward-hint">🏆 {en?'Reward for completing a game: $50':'Награда за завершение игры: $50'}</p></section>;
+  return <section className="games-screen"><div className="games-title"><div><div className="eyebrow"><span/> {en?'Game zone':'Игровая зона'}</div><h1>{en?'Choose a game':'Выбери игру'}</h1><p>{en?'Start with Penalty Mind, earn coins and unlock new modes.':'Начни с Penalty Mind, зарабатывай монеты и открывай новые режимы.'}</p></div><div className="coin-wallet"><span>FIELD COINS</span><strong>${profile?.coins??'—'}</strong></div></div>{message&&<div className="wallet-message">{message}</div>}<div className="game-library">{games.map((item)=>{const locked=Boolean(item.price&&!profile?.unlockedGames.includes(item.id));return <button className={locked?'game-locked':''} disabled={busy} onClick={()=>{void open(item)}} key={item.id}><div className={`game-cover game-cover--${item.id}`}><span>{item.cover}</span>{locked&&<b>🔒</b>}</div><small>{item.role}</small><h2>{item.title}</h2><p>{item.text}</p><strong>{locked?`${en?'Unlock':'Разблокировать'} · $${item.price}`:(en?'Play →':'Играть →')}</strong></button>})}</div><p className="reward-hint">🏆 {en?'Reward for completing a game: $50':'Награда за завершение игры: $50'}</p></section>;
 }

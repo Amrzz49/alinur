@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { varChallenges, varDecisionLabels, type VarDecision } from '../lib/varChallenges';
 
-type Props = { onBack: () => void };
+type Props = { onBack: () => void; onComplete?: () => void };
 
-export function VarChallenge({ onBack }: Props) {
+export function VarChallenge({ onBack, onComplete }: Props) {
   const [index,setIndex]=useState(0);
   const [selected,setSelected]=useState<VarDecision|null>(null);
   const [score,setScore]=useState(0);
@@ -17,7 +17,7 @@ export function VarChallenge({ onBack }: Props) {
     if(decision===challenge.decision)setScore((value)=>value+1);
   };
   const next=()=>{
-    if(index===varChallenges.length-1){setFinished(true);return;}
+    if(index===varChallenges.length-1){onComplete?.();setFinished(true);return;}
     setIndex((value)=>value+1);setSelected(null);
   };
   const restart=()=>{setIndex(0);setSelected(null);setScore(0);setFinished(false)};
