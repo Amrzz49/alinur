@@ -45,7 +45,7 @@ export function GamesScreen({language,isGuest,initialProfile,loadError,onRetry,o
   if(game==='penalty')return <PenaltyMind onBack={back} onComplete={reward}/>;
   if(game==='goalkeeper')return <GoalkeeperIQ onBack={back} onComplete={reward}/>;
   if(game==='pass')return <FindThePass onBack={back} onComplete={reward}/>;
-  if(game==='squad')return <SquadBuilder onBack={back}/>;
+  if(game==='squad')return <SquadBuilder onBack={back} onComplete={reward}/>;
   if(game==='var')return <VarChallenge onBack={back}/>;
   if(loadError)return <section className="games-screen games-load-error"><span>⚠</span><h2>Прогресс не пропал</h2><p>{loadError}</p><button onClick={onRetry}>Загрузить снова</button></section>;
   if(profileLoading)return <section className="games-screen games-loading"><div className="games-loading__title"/><div className="game-library">{[1,2,3].map((item)=><div className="game-skeleton" key={item}><i/><span/><span/></div>)}</div></section>;
