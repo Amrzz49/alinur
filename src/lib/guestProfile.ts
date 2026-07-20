@@ -1,9 +1,10 @@
 import { defaultProgress, type Activity, type PlayerProgress, type Skills } from './playerProgress';
+import { defaultEquipped,defaultOwned,type EquippedCosmetics } from './cosmetics';
 
-export type GuestProfile={coins:number;unlockedGames:string[];dailyStreak:number;lastDailyReward:string|null;dailyTaskDate:string;progress:PlayerProgress};
+export type GuestProfile={coins:number;unlockedGames:string[];ownedCosmetics:string[];equippedCosmetics:EquippedCosmetics;dailyStreak:number;lastDailyReward:string|null;dailyTaskDate:string;progress:PlayerProgress};
 const key='fieldmind-guest-profile';
 const today=()=>new Date().toISOString().slice(0,10);
-const initial:GuestProfile={coins:150,unlockedGames:[],dailyStreak:0,lastDailyReward:null,dailyTaskDate:today(),progress:defaultProgress};
+const initial:GuestProfile={coins:150,unlockedGames:[],ownedCosmetics:defaultOwned,equippedCosmetics:defaultEquipped,dailyStreak:0,lastDailyReward:null,dailyTaskDate:today(),progress:defaultProgress};
 
 export function loadGuestProfile():GuestProfile{
   const saved=localStorage.getItem(key);

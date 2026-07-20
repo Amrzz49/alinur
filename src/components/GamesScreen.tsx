@@ -37,7 +37,7 @@ export function GamesScreen({language,isGuest,initialProfile,onCoinsChange,onUnl
     if(!item.price||profile?.unlockedGames.includes(item.id)){setGame(item.id);return;}
     if(!profile){setMessage('Войди в аккаунт, чтобы покупать игры.');return;}
     if(profile.coins<item.price){setMessage(`Нужно ещё $${item.price-profile.coins}. Проходи бесплатные игры!`);return;}
-    const updated={coins:profile.coins-item.price,unlockedGames:[...profile.unlockedGames,item.id]};
+    const updated={...profile,coins:profile.coins-item.price,unlockedGames:[...profile.unlockedGames,item.id]};
     setProfile(updated);onCoinsChange(updated.coins);onUnlockedGamesChange(updated.unlockedGames);setMessage(`${item.title} разблокирована!`);
     save(updated).then(()=>setGame(item.id)).catch(()=>setMessage('Покупка не сохранилась. Попробуй ещё раз.'));
   };

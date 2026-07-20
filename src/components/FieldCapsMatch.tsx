@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import type { EquippedCosmetics } from "../lib/cosmetics";
 
 type Disc = {
   x: number;
@@ -41,9 +42,11 @@ const createMatch = () => {
 };
 
 export function FieldCapsMatch({
+  cosmetics,
   onBack,
   onWin,
 }: {
+  cosmetics:EquippedCosmetics;
   onBack: () => void;
   onWin: () => void;
 }) {
@@ -166,10 +169,11 @@ export function FieldCapsMatch({
     const draw = () => {
       const { ball, caps } = matchRef.current;
       ctx.clearRect(0, 0, 1000, 600);
-      ctx.fillStyle = "#167b45";
+      const night=cosmetics.stadium==="stadium_night",royal=cosmetics.stadium==="stadium_royal";
+      ctx.fillStyle = night?"#132850":royal?"#542472":"#167b45";
       ctx.fillRect(0, 0, 1000, 600);
       for (let x = 0; x < 1000; x += 125) {
-        ctx.fillStyle = x % 250 ? "#187f49" : "#1d8950";
+        ctx.fillStyle = night?(x%250?"#162e5b":"#1b3768"):royal?(x%250?"#5d297d":"#682f88"):(x % 250 ? "#187f49" : "#1d8950");
         ctx.fillRect(x, 0, 125, 600);
       }
       ctx.strokeStyle = "rgba(255,255,255,.78)";
@@ -322,8 +326,9 @@ export function FieldCapsMatch({
           cap.y,
           cap.r,
         );
-        g.addColorStop(0, cap.team === "blue" ? "#54a6ff" : "#ff7781");
-        g.addColorStop(1, cap.team === "blue" ? "#0753ba" : "#a50e22");
+        const whiteKit=cosmetics.kit==="kit_white",blackKit=cosmetics.kit==="kit_black";
+        g.addColorStop(0,cap.team==="blue"?(whiteKit?"#fff":blackKit?"#555":"#54a6ff"):"#ff7781");
+        g.addColorStop(1,cap.team==="blue"?(whiteKit?"#bbb":blackKit?"#050505":"#0753ba"):"#a50e22");
         ctx.beginPath();
         ctx.arc(cap.x, cap.y, cap.r, 0, Math.PI * 2);
         ctx.fillStyle = g;
@@ -331,7 +336,7 @@ export function FieldCapsMatch({
         ctx.lineWidth = 6;
         ctx.strokeStyle = "#fff";
         ctx.stroke();
-        ctx.fillStyle = "#fff";
+        ctx.fillStyle = cap.team==="blue"&&whiteKit?"#111":"#fff";
         ctx.font = "800 14px Inter";
         ctx.textAlign = "center";
         ctx.fillText(cap.team === "blue" ? (opponentRef.current==="friend"?"P1":"YOU") : (opponentRef.current==="friend"?"P2":"AI"), cap.x, cap.y + 5);
@@ -357,9 +362,10 @@ export function FieldCapsMatch({
         ball.y,
         ball.r,
       );
-      ballGradient.addColorStop(0, "#fff");
-      ballGradient.addColorStop(0.7, "#ededed");
-      ballGradient.addColorStop(1, "#aaa");
+      const goldBall=cosmetics.ball==="ball_gold",uclBall=cosmetics.ball==="ball_ucl";
+      ballGradient.addColorStop(0,goldBall?"#fff0a2":uclBall?"#8bbaff":"#fff");
+      ballGradient.addColorStop(0.7,goldBall?"#e4b936":uclBall?"#2464e8":"#ededed");
+      ballGradient.addColorStop(1,goldBall?"#8d6810":uclBall?"#082b88":"#aaa");
       ctx.beginPath();
       ctx.arc(ball.x, ball.y, ball.r, 0, Math.PI * 2);
       ctx.fillStyle = ballGradient;
