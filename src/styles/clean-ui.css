@@ -8,6 +8,7 @@ body::before{background:linear-gradient(180deg,rgba(4,13,37,.04),rgba(4,13,37,.4
 .nav-links{gap:2px}.nav-links button{min-height:38px;padding:8px 12px;border-radius:10px;color:var(--ui-muted);font-size:12px}.nav-links button:hover,.nav-links button.active{background:rgba(255,255,255,.1);color:#fff}
 .score-pill,.header-wallet,.header-xp,.account-login,.guest-entry__button{min-height:36px;border:1px solid var(--ui-line);background:var(--ui-surface-soft);color:#fff;box-shadow:none}
 .account-button{box-shadow:none}
+.header-tools{display:flex;align-items:center;gap:6px}.header-tool{display:grid;place-items:center;width:36px;height:36px;padding:0;border:1px solid var(--ui-line);border-radius:50%;background:var(--ui-surface-soft);color:#fff;font-size:15px}.header-tool:hover{background:rgba(255,255,255,.16)}
 h1{font-size:clamp(42px,6vw,76px);line-height:.96;letter-spacing:-.04em;text-transform:none}
 .eyebrow,.step-label{color:#9fc0ff}.eyebrow span{background:var(--ui-accent);box-shadow:none}
 .hero-copy h1 em{color:#8fb2ff}.hero-copy>p,.lead,.world-heading p{color:var(--ui-muted)}
@@ -28,5 +29,5 @@ h1{font-size:clamp(42px,6vw,76px);line-height:.96;letter-spacing:-.04em;text-tra
 .profile-menu{border:1px solid #e4e7ec;border-radius:16px;box-shadow:0 20px 55px rgba(0,0,0,.3)}
 .caps-canvas-wrap{border-width:4px;border-radius:var(--ui-radius);box-shadow:0 22px 55px rgba(0,0,0,.3)}
 .caps-message{border-radius:0 0 var(--ui-radius) var(--ui-radius)}
-@media(max-width:900px){.header-xp{display:none}.nav-links button{padding-inline:9px}.guest-entry__button{display:none}}
+@media(max-width:900px){.header-xp{display:none}.nav-links button{padding-inline:9px}.guest-entry__button{display:none}.header-tool{width:32px;height:32px}}
 @media(max-width:650px){.topbar{height:64px}.brand__mark{width:31px;height:31px}.topbar .brand .brand__name{font-size:17px}.header-wallet{min-width:auto;padding-inline:9px}.nav-links{left:10px;right:10px;bottom:10px;border:1px solid var(--ui-line);border-radius:16px;background:rgba(5,17,45,.96);box-shadow:0 12px 35px rgba(0,0,0,.3)}.nav-links button{font-size:10px}.home-screen{min-height:auto;padding:54px 0 90px}.games-screen,.world-screen,.quiz-screen{padding-top:32px}.game-library{gap:14px}}
