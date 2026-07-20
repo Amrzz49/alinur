@@ -12,7 +12,7 @@ export const cosmetics:CosmeticItem[]=[
   {id:'frame_none',category:'frame',name:'Без рамки',price:0,preview:'○'},{id:'frame_gold',category:'frame',name:'Золотая рамка',price:100,preview:'◎'},{id:'frame_blue',category:'frame',name:'Синяя рамка',price:80,preview:'◉'},
 ];
 type PurchaseResult={coins:number;owned_cosmetics:string[];equipped_cosmetics:EquippedCosmetics};
-const purchaseError=(message:string)=>message.includes('Not enough coins')?'Недостаточно монет.':message.includes('Sign in')?'Нужно войти в аккаунт.':'Покупка не удалась. Попробуй ещё раз.';
+const purchaseError=(message:string)=>message.includes('Not enough coins')?'Недостаточно монет.':message.includes('Sign in')?'Нужно войти в аккаунт.':`Покупка не удалась: ${message}`;
 export async function buyCosmetic(id:string){
   const {data,error}=await supabase.rpc('buy_cosmetic',{item_id:id});
   if(error)throw new Error(purchaseError(error.message));
