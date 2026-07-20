@@ -22,8 +22,9 @@ export function GamesScreen({language,isGuest,onCoinsChange,onGameComplete}:{lan
   const en=language==='en';
   const [game,setGame]=useState<Game>('menu');
   const [profile,setProfile]=useState<GameProfile|null>(null);
+  const [profileLoading,setProfileLoading]=useState(true);
   const [message,setMessage]=useState('');
-  useEffect(()=>{if(isGuest){const guest=loadGuestProfile();const loaded={coins:guest.coins,unlockedGames:guest.unlockedGames};setProfile(loaded);onCoinsChange(loaded.coins);return}loadGameProfile().then((loaded)=>{setProfile(loaded);if(loaded)onCoinsChange(loaded.coins)}).catch(()=>setMessage('Не удалось загрузить баланс.'))},[isGuest,onCoinsChange]);
+  useEffect(()=>{let active=true;setProfileLoading(true);if(isGuest){const guest=loadGuestProfile();const loaded={coins:guest.coins,unlockedGames:guest.unlockedGames};setProfile(loaded);onCoinsChange(loaded.coins);setProfileLoading(false);return()=>{active=false}}loadGameProfile().then((loaded)=>{if(!active)return;setProfile(loaded);if(loaded)onCoinsChange(loaded.coins)}).catch(()=>{if(active)setMessage('Не удалось загрузить баланс.')}).finally(()=>{if(active)setProfileLoading(false)});return()=>{active=false}},[isGuest,onCoinsChange]);
   const save=(updated:GameProfile)=>{if(isGuest){const guest=loadGuestProfile();saveGuestProfile({...guest,coins:updated.coins,unlockedGames:updated.unlockedGames});return Promise.resolve(updated)}return saveGameProfile(updated)};
   const reward=()=>{
     onGameComplete();
@@ -46,5 +47,6 @@ export function GamesScreen({language,isGuest,onCoinsChange,onGameComplete}:{lan
   if(game==='pass')return <FindThePass onBack={back} onComplete={reward}/>;
   if(game==='squad')return <SquadBuilder onBack={back}/>;
   if(game==='var')return <VarChallenge onBack={back}/>;
+  if(profileLoading)return <section className="games-screen games-loading"><div className="games-loading__title"/><div className="game-library">{[1,2,3].map((item)=><div className="game-skeleton" key={item}><i/><span/><span/></div>)}</div></section>;
   return <section className="games-screen"><div className="games-title"><div><div className="eyebrow"><span/> {en?'Game zone':'Игровая зона'}</div><h1>{en?'Choose a game':'Выбери игру'}</h1><p>{en?'Start with Penalty Mind, earn coins and unlock new modes.':'Начни с Penalty Mind, зарабатывай монеты и открывай новые режимы.'}</p></div><div className="coin-wallet"><span>FIELD COINS</span><strong>${profile?.coins??'—'}</strong></div></div>{message&&<div className="wallet-message">{message}</div>}<div className="game-library">{games.map((item)=>{const locked=Boolean(item.price&&!profile?.unlockedGames.includes(item.id));return <button className={locked?'game-locked':''} onClick={()=>open(item)} key={item.id}><div className={`game-cover game-cover--${item.id}`}><span>{item.cover}</span>{locked&&<b>🔒</b>}</div><small>{item.role}</small><h2>{item.title}</h2><p>{item.text}</p><strong>{locked?`${en?'Unlock':'Разблокировать'} · $${item.price}`:(en?'Play →':'Играть →')}</strong></button>})}</div><p className="reward-hint">🏆 {en?'Reward for completing a game: $50':'Награда за завершение игры: $50'}</p></section>;
 }
