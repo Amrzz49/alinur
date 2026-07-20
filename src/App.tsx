@@ -17,7 +17,7 @@ import type { TrainingDecision } from './lib/aiCoach';
 import { defaultProgress, loadPlayerProgress, recordActivity, trainingSkillChanges, type Activity, type PlayerProgress } from './lib/playerProgress';
 import { defaultSettings, loadUserSettings, saveUserSettings, type UserSettings } from './lib/userSettings';
 import { localizeChallenge } from './lib/trainingTranslations';
-import { loadGuestProfile } from './lib/guestProfile';
+import { loadGuestProfile, recordGuestActivity, saveGuestProfile } from './lib/guestProfile';
 import { WelcomeScreen } from './components/WelcomeScreen';
 import { SavedToast } from './components/SavedToast';
 
@@ -62,7 +62,8 @@ export default function App() {
   const signOut=()=>{if(isGuest){localStorage.removeItem('fieldmind-guest');setIsGuest(false);setSettings(defaultSettings);setPage('welcome');return}void supabase.auth.signOut()};
 
   const trackActivity=async(activity:Activity,decisions:TrainingDecision[]=[])=>{
-    try{setPlayerProgress(await recordActivity(activity,activity==='training'?trainingSkillChanges(decisions):{}))}catch{return;}
+    const changes=activity==='training'?trainingSkillChanges(decisions):{};
+    try{setPlayerProgress(isGuest?recordGuestActivity(activity,changes):await recordActivity(activity,changes))}catch{return;}
   };
 
   const choose = (choice: ChoiceId) => {
@@ -78,6 +79,7 @@ export default function App() {
     setChallengeIndex(0); setSelectedChoice(null); setScore(0); setFinished(false); setTrainingDecisions([]); setPage('training');
   };
   const rewardMatchWin=async()=>{
+    if(isGuest){const guest=loadGuestProfile(),updated={...guest,coins:guest.coins+25};saveGuestProfile(updated);setCoins(updated.coins);void trackActivity('match_win');return;}
     const profile=await loadGameProfile();
     if(!profile)return;
     const updated={...profile,coins:profile.coins+25};
@@ -89,7 +91,7 @@ export default function App() {
       {!authReady&&<div className="app-loading" aria-label="Loading"/>}
       {authReady&&<>
       {showSaved&&<SavedToast language={settings.language}/>}
-      {page!=='welcome'&&<SiteHeader page={page} score={score} coins={coins} playerProgress={playerProgress} settings={settings} dailyStreak={dailyStreak} claimedToday={claimedToday} progress={`${challengeIndex + 1} / ${challenges.length}`} userEmail={user?.email} userName={user?.user_metadata.name as string | undefined} userAvatar={user?.user_metadata.avatar_url as string | undefined} isGuest={isGuest&&!user} onGuest={enterAsGuest} onSettingsChange={changeSettings} onCoinsChange={setCoins} onDailyChange={(streak)=>{setDailyStreak(streak);setClaimedToday(true)}} onSignOut={signOut} onNavigate={setPage} />}
+      {page!=='welcome'&&<SiteHeader page={page} score={score} coins={coins} playerProgress={playerProgress} settings={settings} dailyStreak={dailyStreak} claimedToday={claimedToday} progress={`${challengeIndex + 1} / ${challenges.length}`} userEmail={user?.email} userName={user?.user_metadata.name as string | undefined} userAvatar={user?.user_metadata.avatar_url as string | undefined} isGuest={isGuest&&!user} onGuest={enterAsGuest} onSettingsChange={changeSettings} onProgressChange={setPlayerProgress} onCoinsChange={setCoins} onDailyChange={(streak)=>{setDailyStreak(streak);setClaimedToday(true)}} onSignOut={signOut} onNavigate={setPage} />}
       {page==='welcome'&&<WelcomeScreen language={settings.language} onGuest={enterAsGuest} onEmail={()=>setPage('auth')}/>}
       {page === 'home' && <HomeScreen language={settings.language} onMatch={()=>setPage('match')} onExplore={() => setPage('world')} />}
       {page === 'match' && <FieldCapsMatch onBack={()=>setPage('home')} onWin={()=>{void rewardMatchWin()}}/>}
