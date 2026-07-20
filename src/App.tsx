@@ -37,6 +37,8 @@ export default function App() {
   const [coins,setCoins]=useState<number|null>(null);
   const [unlockedGames,setUnlockedGames]=useState<string[]>([]);
   const [gameProfileReady,setGameProfileReady]=useState(false);
+  const [gameProfileError,setGameProfileError]=useState('');
+  const [profileReload,setProfileReload]=useState(0);
   const [ownedCosmetics,setOwnedCosmetics]=useState<string[]>(defaultOwned);
   const [equippedCosmetics,setEquippedCosmetics]=useState<EquippedCosmetics>(defaultEquipped);
   const [dailyStreak,setDailyStreak]=useState(0);
@@ -58,9 +60,9 @@ export default function App() {
 
   useEffect(()=>{
     if(!user){if(!isGuest){setCoins(null);setUnlockedGames([]);setGameProfileReady(false)}return;}
-    setGameProfileReady(false);
-    loadGameProfile().then(async(profile)=>{setCoins(profile?.coins??null);setUnlockedGames(profile?.unlockedGames??[]);setOwnedCosmetics(profile?.ownedCosmetics??defaultOwned);setEquippedCosmetics(profile?.equippedCosmetics??defaultEquipped);setDailyStreak(profile?.dailyStreak??0);setClaimedToday(profile?.lastDailyReward===new Date().toISOString().slice(0,10));const [progress,savedSettings]=await Promise.all([loadPlayerProgress(),loadUserSettings()]);if(progress)setPlayerProgress(progress);setSettings(savedSettings)}).catch(()=>setCoins(null)).finally(()=>setGameProfileReady(true));
-  },[user,isGuest]);
+    setGameProfileReady(false);setGameProfileError('');
+    loadGameProfile().then(async(profile)=>{setCoins(profile?.coins??null);setUnlockedGames(profile?.unlockedGames??[]);setOwnedCosmetics(profile?.ownedCosmetics??defaultOwned);setEquippedCosmetics(profile?.equippedCosmetics??defaultEquipped);setDailyStreak(profile?.dailyStreak??0);setClaimedToday(profile?.lastDailyReward===new Date().toISOString().slice(0,10));const [progress,savedSettings]=await Promise.all([loadPlayerProgress(),loadUserSettings()]);if(progress)setPlayerProgress(progress);setSettings(savedSettings);setGameProfileReady(true)}).catch(()=>{setGameProfileError('Не удалось загрузить прогресс. Проверь интернет и попробуй снова.');setGameProfileReady(false)});
+  },[user,isGuest,profileReload]);
 
   useEffect(()=>{document.documentElement.style.setProperty('--app-brightness',String(settings.brightness/100));document.documentElement.dataset.textSize=settings.textSize;document.documentElement.dataset.reducedMotion=String(settings.reducedMotion);document.documentElement.lang=settings.language},[settings]);
   useEffect(()=>{if(!showSaved)return;const timer=window.setTimeout(()=>setShowSaved(false),2600);return()=>clearTimeout(timer)},[showSaved,settings]);
@@ -105,7 +107,7 @@ export default function App() {
       {page === 'match' && <FieldCapsMatch cosmetics={equippedCosmetics} onBack={()=>setPage('home')} onWin={()=>{void rewardMatchWin()}}/>}
       {page === 'world' && <WorldScreen language={settings.language} />}
       {page === 'quiz' && <QuizScreen />}
-      {page === 'games' && <GamesScreen language={settings.language} isGuest={isGuest&&!user} initialProfile={gameProfileReady?{coins:coins??0,unlockedGames,ownedCosmetics,equippedCosmetics}:null} onCoinsChange={setCoins} onUnlockedGamesChange={setUnlockedGames} onGameComplete={()=>{void trackActivity('game')}} />}
+      {page === 'games' && <GamesScreen language={settings.language} isGuest={isGuest&&!user} initialProfile={gameProfileReady?{coins:coins??0,unlockedGames,ownedCosmetics,equippedCosmetics}:null} loadError={gameProfileError} onRetry={()=>setProfileReload((value)=>value+1)} onCoinsChange={setCoins} onUnlockedGamesChange={setUnlockedGames} onGameComplete={()=>{void trackActivity('game')}} />}
       {page === 'shop'&&<ShopScreen coins={coins??0} owned={ownedCosmetics} equipped={equippedCosmetics} isGuest={isGuest&&!user} onChange={updateCosmetics}/>}
       {page === 'auth' && <Auth language={settings.language} onGuest={enterAsGuest} />}
       {page === 'training' && (finished ? <GameComplete score={score} total={challenges.length} decisions={trainingDecisions} language={settings.language} onRestart={restart} /> : (
