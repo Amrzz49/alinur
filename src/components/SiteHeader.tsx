@@ -7,6 +7,7 @@ import type { UserSettings } from '../lib/userSettings';
 import { DailyRewards } from './DailyRewards';
 import { PlayerProgressCard } from './PlayerProgressCard';
 import { SettingsPanel } from './SettingsPanel';
+import { ProfileCompletion } from './ProfileCompletion';
 
 type Panel='profile'|'rewards'|'settings'|null;
 type Props={page:Page;score:number;progress:string;playerProgress:PlayerProgress;settings:UserSettings;coins:number|null;dailyStreak:number;claimedToday:boolean;userEmail?:string;userName?:string;isGuest:boolean;onGuest:()=>void;onSettingsChange:(settings:UserSettings)=>void;onCoinsChange:(coins:number)=>void;onDailyChange:(streak:number)=>void;onSignOut:()=>void;onNavigate:(page:Page)=>void};
@@ -37,7 +38,7 @@ export function SiteHeader(props:Props){
         <button className="header-tool" onClick={()=>toggle('settings')} title={nav.settings}>⚙</button>
         <button className="account-button" onClick={()=>toggle('profile')} title={nav.profile}>{isGuest?'G':(userName||userEmail||'F').charAt(0).toUpperCase()}</button>
         {panel&&<div className="profile-menu profile-menu--rewards">
-          {panel==='profile'&&<><span>{nav.account}</span><strong>{isGuest?nav.guest:userName||nav.player}</strong><small>{isGuest?'FieldMind Guest':userEmail}</small><PlayerProgressCard progress={playerProgress} language={settings.language}/><button onClick={logout}>{nav.logout}</button></>}
+          {panel==='profile'&&<><span>{nav.account}</span><strong>{isGuest?nav.guest:userName||nav.player}</strong><small>{isGuest?'FieldMind Guest':userEmail}</small>{!isGuest&&<ProfileCompletion progress={playerProgress} dailyStreak={dailyStreak} language={settings.language}/>}<PlayerProgressCard progress={playerProgress} language={settings.language}/><button onClick={logout}>{nav.logout}</button></>}
           {panel==='rewards'&&<DailyRewards streak={dailyStreak} claimedToday={rewardClaimed} loading={rewardLoading} onClaim={claim}/>}
           {panel==='settings'&&<SettingsPanel settings={settings} onChange={onSettingsChange}/>}
         </div>}
