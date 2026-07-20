@@ -19,6 +19,7 @@ import { defaultSettings, loadUserSettings, saveUserSettings, type UserSettings 
 import { localizeChallenge } from './lib/trainingTranslations';
 import { loadGuestProfile } from './lib/guestProfile';
 import { WelcomeScreen } from './components/WelcomeScreen';
+import { SavedToast } from './components/SavedToast';
 
 export type Page = 'home' | 'match' | 'training' | 'games' | 'quiz' | 'world' | 'auth' | 'welcome';
 
@@ -37,6 +38,7 @@ export default function App() {
   const [trainingDecisions,setTrainingDecisions]=useState<TrainingDecision[]>([]);
   const [playerProgress,setPlayerProgress]=useState<PlayerProgress>(defaultProgress);
   const [settings,setSettings]=useState<UserSettings>(defaultSettings);
+  const [showSaved,setShowSaved]=useState(false);
   const challenge = localizeChallenge(challenges[challengeIndex],challengeIndex,settings.language);
 
   useEffect(()=>{
@@ -54,7 +56,8 @@ export default function App() {
   },[user]);
 
   useEffect(()=>{document.documentElement.style.setProperty('--app-brightness',String(settings.brightness/100));document.documentElement.dataset.textSize=settings.textSize;document.documentElement.dataset.reducedMotion=String(settings.reducedMotion);document.documentElement.lang=settings.language},[settings]);
-  const changeSettings=(next:UserSettings)=>{setSettings(next);if(isGuest)localStorage.setItem('fieldmind-guest-settings',JSON.stringify(next));else void saveUserSettings(next).catch(()=>undefined)};
+  useEffect(()=>{if(!showSaved)return;const timer=window.setTimeout(()=>setShowSaved(false),2600);return()=>clearTimeout(timer)},[showSaved,settings]);
+  const changeSettings=async(next:UserSettings)=>{setSettings(next);try{if(isGuest)localStorage.setItem('fieldmind-guest-settings',JSON.stringify(next));else await saveUserSettings(next);setShowSaved(true)}catch{setShowSaved(false)}};
   const enterAsGuest=()=>{localStorage.setItem('fieldmind-guest','true');const guest=loadGuestProfile();setCoins(guest.coins);setDailyStreak(guest.dailyStreak);setClaimedToday(guest.lastDailyReward===new Date().toISOString().slice(0,10));setPlayerProgress(guest.progress);setIsGuest(true);const saved=localStorage.getItem('fieldmind-guest-settings');if(saved)try{setSettings({...defaultSettings,...JSON.parse(saved) as UserSettings})}catch{localStorage.removeItem('fieldmind-guest-settings')}setPage('home')};
   const signOut=()=>{if(isGuest){localStorage.removeItem('fieldmind-guest');setIsGuest(false);setSettings(defaultSettings);setPage('welcome');return}void supabase.auth.signOut()};
 
@@ -85,6 +88,7 @@ export default function App() {
     <main className="app-shell">
       {!authReady&&<div className="app-loading" aria-label="Loading"/>}
       {authReady&&<>
+      {showSaved&&<SavedToast language={settings.language}/>}
       {page!=='welcome'&&<SiteHeader page={page} score={score} coins={coins} playerProgress={playerProgress} settings={settings} dailyStreak={dailyStreak} claimedToday={claimedToday} progress={`${challengeIndex + 1} / ${challenges.length}`} userEmail={user?.email} userName={user?.user_metadata.name as string | undefined} isGuest={isGuest&&!user} onGuest={enterAsGuest} onSettingsChange={changeSettings} onCoinsChange={setCoins} onDailyChange={(streak)=>{setDailyStreak(streak);setClaimedToday(true)}} onSignOut={signOut} onNavigate={setPage} />}
       {page==='welcome'&&<WelcomeScreen language={settings.language} onGuest={enterAsGuest} onEmail={()=>setPage('auth')}/>}
       {page === 'home' && <HomeScreen language={settings.language} onMatch={()=>setPage('match')} onExplore={() => setPage('world')} />}
