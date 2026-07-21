@@ -22,8 +22,9 @@ import { WelcomeScreen } from './components/WelcomeScreen';
 import { SavedToast } from './components/SavedToast';
 import { ShopScreen } from './components/ShopScreen';
 import { defaultEquipped,defaultOwned,type EquippedCosmetics } from './lib/cosmetics';
+import { DemoDayScreen } from './components/DemoDayScreen';
 
-export type Page = 'home' | 'match' | 'training' | 'games' | 'shop' | 'quiz' | 'world' | 'auth' | 'welcome';
+export type Page = 'home' | 'demo' | 'match' | 'training' | 'games' | 'shop' | 'quiz' | 'world' | 'auth' | 'welcome';
 
 export default function App() {
   const [page, setPage] = useState<Page>('welcome');
@@ -103,7 +104,8 @@ export default function App() {
       {showSaved&&<SavedToast language={settings.language}/>}
       {page!=='welcome'&&<SiteHeader page={page} score={score} coins={coins} playerProgress={playerProgress} settings={settings} equipped={equippedCosmetics} dailyStreak={dailyStreak} claimedToday={claimedToday} progress={`${challengeIndex + 1} / ${challenges.length}`} userEmail={user?.email} userName={user?.user_metadata.name as string | undefined} userAvatar={user?.user_metadata.avatar_url as string | undefined} isGuest={isGuest&&!user} onGuest={enterAsGuest} onSettingsChange={changeSettings} onProgressChange={setPlayerProgress} onCoinsChange={setCoins} onDailyChange={(streak)=>{setDailyStreak(streak);setClaimedToday(true)}} onSignOut={signOut} onNavigate={setPage} />}
       {page==='welcome'&&<WelcomeScreen language={settings.language} onGuest={enterAsGuest} onEmail={()=>setPage('auth')}/>}
-      {page === 'home' && <HomeScreen language={settings.language} onMatch={()=>setPage('match')} onExplore={() => setPage('world')} />}
+      {page === 'home' && <HomeScreen language={settings.language} onMatch={()=>setPage('match')} onDemo={()=>setPage('demo')} onExplore={() => setPage('world')} />}
+      {page === 'demo'&&<DemoDayScreen onBack={()=>setPage('home')}/>}
       {page === 'match' && <FieldCapsMatch cosmetics={equippedCosmetics} onBack={()=>setPage('home')} onWin={()=>{void rewardMatchWin()}}/>}
       {page === 'world' && <WorldScreen language={settings.language} />}
       {page === 'quiz' && <QuizScreen />}
