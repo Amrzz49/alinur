@@ -7,6 +7,7 @@ body::before{background:linear-gradient(180deg,rgba(4,13,37,.04),rgba(4,13,37,.4
 .topbar .brand .brand__name{font-size:19px;text-shadow:none}
 .nav-links{gap:2px}.nav-links button{min-height:38px;padding:8px 12px;border-radius:10px;color:var(--ui-muted);font-size:12px}.nav-links button:hover,.nav-links button.active{background:rgba(255,255,255,.1);color:#fff}
 .score-pill,.header-wallet,.header-xp,.account-login,.guest-entry__button{min-height:36px;border:1px solid var(--ui-line);background:var(--ui-surface-soft);color:#fff;box-shadow:none}
+.header-stats{height:100%;align-items:center}.progress-pill{display:grid;place-items:center;min-width:58px;height:36px;margin:0;padding:0 12px;line-height:1}.progress-pill strong{display:block;line-height:1}
 .account-button{box-shadow:none}
 .account-button--frame_gold{box-shadow:0 0 0 3px #e4b936}.account-button--frame_blue{box-shadow:0 0 0 3px #397ef2}
 .header-tools{display:flex;align-items:center;gap:6px}.header-tool{display:grid;place-items:center;width:36px;height:36px;padding:0;border:1px solid var(--ui-line);border-radius:50%;background:var(--ui-surface-soft);color:#fff;font-size:15px}.header-tool:hover{background:rgba(255,255,255,.16)}
