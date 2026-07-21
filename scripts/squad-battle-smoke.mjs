@@ -6,7 +6,10 @@ const page=await browser.newPage({viewport:{width:1280,height:900}});page.setDef
 await page.goto('http://127.0.0.1:4173');await page.evaluate(()=>localStorage.clear());await page.reload();
 await page.getByRole('button',{name:/Continue|Продолжить/}).click();await page.getByRole('button',{name:/Demo account|Демо-аккаунт/}).click();
 await page.getByRole('button',{name:'Games'}).click();await page.getByRole('button',{name:/Squad Builder 26/}).click();
-for(let index=0;index<11;index+=1)await page.locator('.mad-picker .mad-card').first().click();
+await page.getByText(/AI suggests: Goalkeeper/).waitFor();
+await page.locator('.mad-picker .mad-card').first().click();
+await page.getByText(/AI suggests: Left back/).waitFor();
+for(let index=1;index<11;index+=1)await page.locator('.mad-picker .mad-card').first().click();
 await page.locator('.squad-play-ai').click();
 const aiTeam=page.locator('.fatal-team').nth(1);
 assert.equal(await aiTeam.locator('.mad-card-back').count(),11,'AI cards were visible before the duel.');
