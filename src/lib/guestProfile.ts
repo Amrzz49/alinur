@@ -25,14 +25,15 @@ export function claimGuestReward():GuestProfile{
   saveGuestProfile(next);return next;
 }
 
-export function recordGuestActivity(activity:Activity,skillChanges:Partial<Skills>={}):PlayerProgress{
+export function recordGuestActivity(activity:Activity,skillChanges:Partial<Skills>={},decisions:{selected:string;correct:string}[]=[]):PlayerProgress{
   const profile=loadGuestProfile(),currentDay=today();
   const sameDay=profile.dailyTaskDate===currentDay;
   const dailyTasks=sameDay?{...profile.progress.dailyTasks}:{training:0,games:0,wins:0};
   const task=activity==='training'?'training':activity==='game'?'games':'wins';dailyTasks[task]+=1;
   const xpReward=activity==='training'?100:activity==='match_win'?75:50;
   const skills={...profile.progress.skills};Object.entries(skillChanges).forEach(([name,value])=>{const key=name as keyof Skills;skills[key]=Math.min(100,skills[key]+(value??0))});
-  const progress={...profile.progress,xp:profile.progress.xp+xpReward,skills,dailyTasks,dailyRewardClaimed:sameDay&&profile.progress.dailyRewardClaimed};
+  const correct=decisions.filter((item)=>item.selected===item.correct).length;
+  const progress={...profile.progress,xp:profile.progress.xp+xpReward,skills,dailyTasks,dailyRewardClaimed:sameDay&&profile.progress.dailyRewardClaimed,totalTrainings:profile.progress.totalTrainings+(activity==='training'?1:0),correctDecisions:profile.progress.correctDecisions+(activity==='training'?correct:0),totalDecisions:profile.progress.totalDecisions+(activity==='training'?decisions.length:0)};
   saveGuestProfile({...profile,dailyTaskDate:currentDay,progress});return progress;
 }
 

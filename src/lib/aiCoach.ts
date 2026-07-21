@@ -19,3 +19,12 @@ export async function getAiCoachAnalysis(decisions:TrainingDecision[],score:numb
   if(!response?.text)throw new Error(response?.error||'AI-тренер не получил ответ.');
   return response.text;
 }
+
+export async function getWeeklyParentAdvice(progress:{totalTrainings:number;correctDecisions:number;totalDecisions:number;skills:Record<string,number>}):Promise<string>{
+  const accuracy=progress.totalDecisions?Math.round(progress.correctDecisions/progress.totalDecisions*100):0;
+  const prompt=`Статистика молодого футболиста: тренировок ${progress.totalTrainings}, точность решений ${accuracy}%, навыки ${JSON.stringify(progress.skills)}. Дай родителю один конкретный безопасный совет на следующую неделю: какое футбольное мышление тренировать и одно упражнение на 10 минут. Максимум 2 коротких предложения, без медицинских советов.`;
+  const {data,error}=await supabase.functions.invoke('ai',{body:{prompt,system:'Ты доброжелательный футбольный тренер для родителей юных игроков. Отвечай кратко на русском языке.'}});
+  const response=data as {text?:string}|null;
+  if(error||!response?.text)throw new Error('AI-тренер сейчас недоступен.');
+  return response.text;
+}

@@ -23,8 +23,9 @@ import { SavedToast } from './components/SavedToast';
 import { ShopScreen } from './components/ShopScreen';
 import { defaultEquipped,defaultOwned,type EquippedCosmetics } from './lib/cosmetics';
 import { DemoDayScreen } from './components/DemoDayScreen';
+import { ParentReport } from './components/ParentReport';
 
-export type Page = 'home' | 'demo' | 'match' | 'training' | 'games' | 'shop' | 'quiz' | 'world' | 'auth' | 'welcome';
+export type Page = 'home' | 'demo' | 'parent' | 'match' | 'training' | 'games' | 'shop' | 'quiz' | 'world' | 'auth' | 'welcome';
 
 export default function App() {
   const [page, setPage] = useState<Page>('welcome');
@@ -74,7 +75,7 @@ export default function App() {
 
   const trackActivity=async(activity:Activity,decisions:TrainingDecision[]=[])=>{
     const changes=activity==='training'?trainingSkillChanges(decisions):{};
-    try{setPlayerProgress(isGuest?recordGuestActivity(activity,changes):await recordActivity(activity,changes))}catch{return;}
+    try{setPlayerProgress(isGuest?recordGuestActivity(activity,changes,decisions):await recordActivity(activity,changes,decisions))}catch{return;}
   };
 
   const choose = (choice: ChoiceId) => {
@@ -106,6 +107,7 @@ export default function App() {
       {page==='welcome'&&<WelcomeScreen language={settings.language} onGuest={enterAsGuest} onEmail={()=>setPage('auth')}/>}
       {page === 'home' && <HomeScreen language={settings.language} onMatch={()=>setPage('match')} onDemo={()=>setPage('demo')} onExplore={() => setPage('world')} />}
       {page === 'demo'&&<DemoDayScreen onBack={()=>setPage('home')}/>}
+      {page==='parent'&&<ParentReport progress={playerProgress} onBack={()=>setPage('home')}/>}
       {page === 'match' && <FieldCapsMatch cosmetics={equippedCosmetics} onBack={()=>setPage('home')} onWin={()=>{void rewardMatchWin()}}/>}
       {page === 'world' && <WorldScreen language={settings.language} />}
       {page === 'quiz' && <QuizScreen />}
