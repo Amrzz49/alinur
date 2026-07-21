@@ -23,21 +23,18 @@ export function SquadBattle({language,team,onBack,onComplete}:{language:'ru'|'en
   const finished=duels.length===11;
   const lastDuel=duels[duels.length-1];
   const aiChooses=duels.length%2===1;
+  const chooseAiStat=(players:SquadPlayer[])=>(Object.keys(statNames) as DuelStat[]).reduce((best,item)=>Math.max(...players.map((player)=>playerStats(player)[item]))>Math.max(...players.map((player)=>playerStats(player)[best]))?item:best);
 
   const playDuel=()=>{
     if(!mine)return;
     const available=aiTeam.filter((player)=>!usedEnemy.includes(player.id));
-    let chosenStat=stat;
-    let enemy=available.reduce((best,player)=>playerStats(player)[stat]>playerStats(best)[stat]?player:best);
-    if(aiChooses){
-      const options=(Object.keys(statNames) as DuelStat[]).flatMap((item)=>available.map((player)=>({item,player,advantage:playerStats(player)[item]-playerStats(mine)[item]})));
-      const choice=options.reduce((best,option)=>option.advantage>best.advantage?option:best);
-      chosenStat=choice.item;enemy=choice.player;setStat(chosenStat);
-    }
+    const chosenStat=stat;
+    const enemy=available.reduce((best,player)=>playerStats(player)[chosenStat]>playerStats(best)[chosenStat]?player:best);
     const mineValue=playerStats(mine)[chosenStat];
     const enemyValue=playerStats(enemy)[chosenStat];
     const next=[...duels,{mine,enemy,stat:chosenStat,mineValue,enemyValue}];
     setDuels(next);setMine(null);
+    if(!aiChooses){const remaining=available.filter((player)=>player.id!==enemy.id);if(remaining.length)setStat(chooseAiStat(remaining))}
     if(next.length===11&&!rewarded.current){rewarded.current=true;onComplete()}
   };
   const restart=()=>{
@@ -51,7 +48,7 @@ export function SquadBattle({language,team,onBack,onComplete}:{language:'ru'|'en
       <div className="fatal-score"><b>{myScore}</b><span>{duels.length} / 11</span><b>{aiScore}</b></div>
     </header>
     <div className="duel-picker-label">{aiChooses?(en?'AI CHOOSES THE STAT':'ХАРАКТЕРИСТИКУ ВЫБИРАЕТ AI'):(en?'YOU CHOOSE THE STAT':'ХАРАКТЕРИСТИКУ ВЫБИРАЕШЬ ТЫ')}</div>
-    <nav className={`fatal-stats ${aiChooses?'ai-turn':''}`}>{(Object.keys(statNames) as DuelStat[]).map((item)=><button className={!aiChooses&&stat===item?'active':''} disabled={aiChooses} onClick={()=>setStat(item)} key={item}>{en?item.toUpperCase():statNames[item]}</button>)}</nav>
+    <nav className={`fatal-stats ${aiChooses?'ai-turn':''}`}>{(Object.keys(statNames) as DuelStat[]).map((item)=><button className={stat===item?'active':''} disabled={aiChooses} onClick={()=>setStat(item)} key={item}>{en?item.toUpperCase():statNames[item]}</button>)}</nav>
     {lastDuel && (
       <DuelResult duel={lastDuel} language={language}/>
     )}
