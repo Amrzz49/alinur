@@ -20,10 +20,10 @@ export async function getAiCoachAnalysis(decisions:TrainingDecision[],score:numb
   return response.text;
 }
 
-export async function getWeeklyParentAdvice(progress:{totalTrainings:number;correctDecisions:number;totalDecisions:number;skills:Record<string,number>}):Promise<string>{
+export async function getWeeklyPlayerAdvice(progress:{totalTrainings:number;correctDecisions:number;totalDecisions:number;skills:Record<string,number>}):Promise<string>{
   const accuracy=progress.totalDecisions?Math.round(progress.correctDecisions/progress.totalDecisions*100):0;
-  const prompt=`Статистика молодого футболиста: тренировок ${progress.totalTrainings}, точность решений ${accuracy}%, навыки ${JSON.stringify(progress.skills)}. Дай родителю один конкретный безопасный совет на следующую неделю: какое футбольное мышление тренировать и одно упражнение на 10 минут. Максимум 2 коротких предложения, без медицинских советов.`;
-  const {data,error}=await supabase.functions.invoke('ai',{body:{prompt,system:'Ты доброжелательный футбольный тренер для родителей юных игроков. Отвечай кратко на русском языке.'}});
+  const prompt=`Статистика молодого футболиста: тренировок ${progress.totalTrainings}, точность решений ${accuracy}%, навыки ${JSON.stringify(progress.skills)}. Обратись прямо к игроку и дай один конкретный безопасный совет на следующую неделю: какой навык футбольного мышления улучшить и одно упражнение на 10 минут. Максимум 2 коротких предложения, без медицинских советов.`;
+  const {data,error}=await supabase.functions.invoke('ai',{body:{prompt,system:'Ты доброжелательный футбольный тренер для юного игрока. Обращайся на «ты» и отвечай кратко на русском языке.'}});
   const response=data as {text?:string}|null;
   if(error||!response?.text)throw new Error('AI-тренер сейчас недоступен.');
   return response.text;
