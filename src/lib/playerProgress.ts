@@ -2,18 +2,20 @@ import { supabase } from './supabase';
 import type { TrainingDecision } from './aiCoach';
 
 export type Skills={vision:number;passing:number;shooting:number;dribbling:number};
+export type MistakePatterns={left:number;right:number;dribble:number;shot:number};
 export type DailyTasks={training:number;games:number;wins:number};
-export type PlayerProgress={xp:number;skills:Skills;dailyTasks:DailyTasks;dailyRewardClaimed:boolean;totalTrainings:number;correctDecisions:number;totalDecisions:number};
+export type PlayerProgress={xp:number;skills:Skills;dailyTasks:DailyTasks;dailyRewardClaimed:boolean;totalTrainings:number;correctDecisions:number;totalDecisions:number;mistakePatterns:MistakePatterns};
 export type Activity='training'|'game'|'match_win';
 
-const defaults:PlayerProgress={xp:0,skills:{vision:10,passing:10,shooting:10,dribbling:10},dailyTasks:{training:0,games:0,wins:0},dailyRewardClaimed:false,totalTrainings:0,correctDecisions:0,totalDecisions:0};
+const emptyMistakes:MistakePatterns={left:0,right:0,dribble:0,shot:0};
+const defaults:PlayerProgress={xp:0,skills:{vision:10,passing:10,shooting:10,dribbling:10},dailyTasks:{training:0,games:0,wins:0},dailyRewardClaimed:false,totalTrainings:0,correctDecisions:0,totalDecisions:0,mistakePatterns:emptyMistakes};
 
 export async function loadPlayerProgress():Promise<PlayerProgress|null>{
   const {data:auth}=await supabase.auth.getUser();if(!auth.user)return null;
-  const {data,error}=await supabase.from('game_profiles').select('xp,skills,daily_tasks,daily_task_date,daily_task_reward_date,total_trainings,correct_decisions,total_decisions').eq('user_id',auth.user.id).single();
+  const {data,error}=await supabase.from('game_profiles').select('xp,skills,daily_tasks,daily_task_date,daily_task_reward_date,total_trainings,correct_decisions,total_decisions,mistake_patterns').eq('user_id',auth.user.id).single();
   if(error)throw error;
   const tasks=data.daily_task_date===new Date().toISOString().slice(0,10)?data.daily_tasks:defaults.dailyTasks;
-  return {xp:data.xp,skills:data.skills as Skills,dailyTasks:tasks as DailyTasks,dailyRewardClaimed:data.daily_task_reward_date===new Date().toISOString().slice(0,10),totalTrainings:data.total_trainings,correctDecisions:data.correct_decisions,totalDecisions:data.total_decisions};
+  return {xp:data.xp,skills:data.skills as Skills,dailyTasks:tasks as DailyTasks,dailyRewardClaimed:data.daily_task_reward_date===new Date().toISOString().slice(0,10),totalTrainings:data.total_trainings,correctDecisions:data.correct_decisions,totalDecisions:data.total_decisions,mistakePatterns:data.mistake_patterns as MistakePatterns};
 }
 
 export async function recordActivity(activity:Activity,skillChanges:Partial<Skills>={},decisions:TrainingDecision[]=[]):Promise<PlayerProgress>{
@@ -21,8 +23,10 @@ export async function recordActivity(activity:Activity,skillChanges:Partial<Skil
   const payload={...skillChanges,_correct:correct,_total:decisions.length};
   const {data,error}=await supabase.rpc('record_player_activity',{activity,skill_changes:payload});
   if(error)throw error;const result=data?.[0];if(!result)throw new Error('Прогресс не сохранился.');
-  const {data:profile}=await supabase.from('game_profiles').select('daily_task_reward_date').single();
-  return {xp:result.xp,skills:result.skills as Skills,dailyTasks:result.daily_tasks as DailyTasks,dailyRewardClaimed:profile?.daily_task_reward_date===new Date().toISOString().slice(0,10),totalTrainings:result.total_trainings,correctDecisions:result.correct_decisions,totalDecisions:result.total_decisions};
+  const mistakes={...emptyMistakes};decisions.filter((item)=>item.selected!==item.correct).forEach((item)=>{mistakes[item.correct]+=1});
+  if(activity==='training')await supabase.rpc('remember_training_mistakes',{mistakes});
+  const {data:profile}=await supabase.from('game_profiles').select('daily_task_reward_date,mistake_patterns').single();
+  return {xp:result.xp,skills:result.skills as Skills,dailyTasks:result.daily_tasks as DailyTasks,dailyRewardClaimed:profile?.daily_task_reward_date===new Date().toISOString().slice(0,10),totalTrainings:result.total_trainings,correctDecisions:result.correct_decisions,totalDecisions:result.total_decisions,mistakePatterns:profile?.mistake_patterns as MistakePatterns??emptyMistakes};
 }
 
 export async function claimDailyTaskReward():Promise<number>{

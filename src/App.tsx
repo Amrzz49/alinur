@@ -114,7 +114,7 @@ export default function App() {
       {page === 'games' && <GamesScreen language={settings.language} isGuest={isGuest&&!user} initialProfile={gameProfileReady?{coins:coins??0,unlockedGames,ownedCosmetics,equippedCosmetics}:null} loadError={gameProfileError} onRetry={()=>setProfileReload((value)=>value+1)} onCoinsChange={setCoins} onUnlockedGamesChange={setUnlockedGames} onGameComplete={()=>{void trackActivity('game')}} />}
       {page === 'shop'&&<ShopScreen coins={coins??0} owned={ownedCosmetics} equipped={equippedCosmetics} isGuest={isGuest&&!user} onChange={updateCosmetics}/>}
       {page === 'auth' && <Auth language={settings.language} onGuest={enterAsGuest} />}
-      {page === 'training' && (finished ? <GameComplete score={score} total={challenges.length} decisions={trainingDecisions} language={settings.language} onRestart={restart} /> : (
+      {page === 'training' && (finished ? <GameComplete score={score} total={challenges.length} decisions={trainingDecisions} patterns={playerProgress.mistakePatterns} language={settings.language} onRestart={restart} /> : (
         <section className="game-layout">
           <div className="field-column">
             <div className="eyebrow"><span /> {challenge.difficulty}</div><h1>{challenge.title}</h1>
