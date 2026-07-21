@@ -34,7 +34,7 @@ export function PenaltyMind({ language='ru',onBack, onComplete }: { language?:'r
   if (finished) return <section className="penalty-finish">{onBack&&<button className="game-back" onClick={onBack}>← {en?'All games':'Все игры'}</button>}<div>{score >= 4 ? '🏆' : score >= 2 ? '⚽' : '💪'}</div><span className="step-label">{en?'SERIES COMPLETE':'СЕРИЯ ЗАВЕРШЕНА'}</span><h1>{resultTitle}</h1><strong>{score} <small>/ 5</small></strong><p>{resultText}</p><button className="play-button" onClick={restart}>{en?'Play again':'Сыграть ещё раз'} ↻</button></section>;
 
   return <section className="penalty-screen">{onBack&&<button className="game-back" onClick={onBack}>← {en?'All games':'Все игры'}</button>}
-    <div className="penalty-heading"><div><div className="eyebrow"><span /> {en?'Mini-game':'Мини-игра'}</div><h1>Penalty Mind</h1><p>{en?'Pick a corner and outsmart the goalkeeper.':'Выбери угол и перехитри вратаря.'}</p></div><div className="penalty-score"><span>{en?'Goals':'Голы'}</span><strong>{score}</strong><small>{en?'Round':'Раунд'} {round} / 5</small></div></div>
+    <div className="penalty-heading"><div><div className="eyebrow"><span /> {en?'Mini-game':'Мини-игра'}</div><h1>{en?'Penalty Mind':'Мастер пенальти'}</h1><p>{en?'Pick a corner and outsmart the goalkeeper.':'Выбери угол и перехитри вратаря.'}</p></div><div className="penalty-score"><span>{en?'Goals':'Голы'}</span><strong>{score}</strong><small>{en?'Round':'Раунд'} {round} / 5</small></div></div>
     <div className="penalty-game"><div className="stadium-lights" /><div className="goal"><div className="goal-net" />
       <div className={`keeper ${keeper ? `keeper--${keeper}` : ''}`}><Goalkeeper /></div>
       <div className={`shot-ball ${keeper ? `shot-ball--${selected}` : ''}`}>⚽</div>

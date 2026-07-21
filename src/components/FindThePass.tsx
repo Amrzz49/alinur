@@ -182,7 +182,7 @@ export function FindThePass({
           <div className="eyebrow">
             <span /> {en ? "Mini-game" : "Мини-игра"}
           </div>
-          <h1>Find the Pass</h1>
+          <h1>{en ? "Find the Pass" : "Найди пас"}</h1>
           <p>
             {en
               ? "Tap the open blue player."

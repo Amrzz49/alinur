@@ -9,14 +9,14 @@ import { loadGuestProfile, saveGuestProfile } from '../lib/guestProfile';
 import { StatusState } from './StatusState';
 
 type Game = 'menu' | 'penalty' | 'goalkeeper' | 'pass' | 'squad' | 'var';
-type GameCard = { id:Game; role:string;roleEn:string; title:string; text:string;textEn:string; cover:string; price?:number };
+type GameCard = { id:Game; role:string;roleEn:string; title:string; titleRu:string; text:string;textEn:string; cover:string; price?:number };
 
 const games:GameCard[]=[
-  {id:'penalty',role:'НАПАДАЮЩИЙ',roleEn:'STRIKER',title:'Penalty Mind',text:'Перехитри вратаря и забей как можно больше пенальти.',textEn:'Outsmart the goalkeeper and score as many penalties as possible.',cover:'⚽'},
-  {id:'goalkeeper',role:'ВРАТАРЬ',roleEn:'GOALKEEPER',title:'Goalkeeper IQ',text:'Угадывай направление удара и защищай свои ворота.',textEn:'Read the shot direction and protect your goal.',cover:'🧤',price:100},
-  {id:'pass',role:'ПЛЕЙМЕЙКЕР',roleEn:'PLAYMAKER',title:'Find the Pass',text:'Находи свободного партнёра и избегай перехватов.',textEn:'Find the free teammate and avoid interceptions.',cover:'● → ●',price:150},
-  {id:'squad',role:'МЕНЕДЖЕР',roleEn:'MANAGER',title:'Squad Builder 26',text:'Собери состав мечты и получи максимальную химию.',textEn:'Build your dream squad and maximise chemistry.',cover:'95 91 93',price:300},
-  {id:'var',role:'ВИДЕОСУДЬЯ',roleEn:'VIDEO REFEREE',title:'VAR Challenge',text:'Разбирай спорные эпизоды и выноси правильный вердикт.',textEn:'Review close calls and make the correct decision.',cover:'VAR',price:200},
+  {id:'penalty',role:'НАПАДАЮЩИЙ',roleEn:'STRIKER',title:'Penalty Mind',titleRu:'Мастер пенальти',text:'Перехитри вратаря и забей как можно больше пенальти.',textEn:'Outsmart the goalkeeper and score as many penalties as possible.',cover:'⚽'},
+  {id:'goalkeeper',role:'ВРАТАРЬ',roleEn:'GOALKEEPER',title:'Goalkeeper IQ',titleRu:'IQ вратаря',text:'Угадывай направление удара и защищай свои ворота.',textEn:'Read the shot direction and protect your goal.',cover:'🧤',price:100},
+  {id:'pass',role:'ПЛЕЙМЕЙКЕР',roleEn:'PLAYMAKER',title:'Find the Pass',titleRu:'Найди пас',text:'Находи свободного партнёра и избегай перехватов.',textEn:'Find the free teammate and avoid interceptions.',cover:'● → ●',price:150},
+  {id:'squad',role:'МЕНЕДЖЕР',roleEn:'MANAGER',title:'Squad Builder 26',titleRu:'Конструктор состава 26',text:'Собери состав мечты и получи максимальную химию.',textEn:'Build your dream squad and maximise chemistry.',cover:'95 91 93',price:300},
+  {id:'var',role:'ВИДЕОСУДЬЯ',roleEn:'VIDEO REFEREE',title:'VAR Challenge',titleRu:'VAR-челлендж',text:'Разбирай спорные эпизоды и выноси правильный вердикт.',textEn:'Review close calls and make the correct decision.',cover:'VAR',price:200},
 ];
 
 export function GamesScreen({language,isGuest,initialProfile,loadError,onRetry,onCoinsChange,onUnlockedGamesChange,onGameComplete}:{language:'ru'|'en';isGuest:boolean;initialProfile:GameProfile|null;loadError:string;onRetry:()=>void;onCoinsChange:(coins:number)=>void;onUnlockedGamesChange:(games:string[])=>void;onGameComplete:()=>void}) {
@@ -47,7 +47,7 @@ export function GamesScreen({language,isGuest,initialProfile,loadError,onRetry,o
     try{
       await save(updated);
       setProfile(updated);onCoinsChange(updated.coins);onUnlockedGamesChange(updated.unlockedGames);
-      setMessage(en?`${item.title} unlocked!`:`${item.title} разблокирована!`);setGame(item.id);
+      setMessage(en?`${item.title} unlocked!`:`${item.titleRu} разблокирована!`);setGame(item.id);
     }catch{setMessage(en?'Purchase was not saved. No coins were charged.':'Покупка не сохранилась. Монеты не списаны — попробуй ещё раз.')}
     finally{setBusy(false)}
   };
@@ -59,5 +59,5 @@ export function GamesScreen({language,isGuest,initialProfile,loadError,onRetry,o
   if(game==='var')return <VarChallenge language={language} onBack={back} onComplete={reward}/>;
   if(loadError)return <StatusState kind="error" title={en?'Your progress is safe':'Прогресс не пропал'} text={loadError} action={en?'Try again':'Загрузить снова'} onAction={onRetry}/>;
   if(profileLoading)return <StatusState kind="loading" title={en?'Loading your games…':'Загружаем твои игры…'} text={en?'This usually takes a few seconds.':'Обычно это занимает несколько секунд.'}/>;
-  return <section className="games-screen"><div className="games-title"><div><div className="eyebrow"><span/> {en?'Game zone':'Игровая зона'}</div><h1>{en?'Choose a game':'Выбери игру'}</h1><p>{en?'Play, earn coins and unlock new modes.':'Играй, зарабатывай монеты и открывай режимы.'}</p></div><div className="coin-wallet"><span>FIELD COINS</span><strong>${profile?.coins??'—'}</strong></div></div>{message&&<div className="wallet-message">{message}</div>}<div className="game-library">{games.map((item)=>{const locked=Boolean(item.price&&!profile?.unlockedGames.includes(item.id));return <button className={locked?'game-locked':''} disabled={busy} onClick={()=>{void open(item)}} key={item.id}><div className={`game-cover game-cover--${item.id}`}><span>{item.cover}</span>{locked&&<b>🔒</b>}</div><small>{en?item.roleEn:item.role}</small><h2>{item.title}</h2><p>{en?item.textEn:item.text}</p><strong>{locked?`${en?'Unlock':'Разблокировать'} · $${item.price}`:(en?'Play →':'Играть →')}</strong></button>})}</div><p className="reward-hint">🏆 {en?'Completion reward: $50':'Награда за игру: $50'}</p></section>;
+  return <section className="games-screen"><div className="games-title"><div><div className="eyebrow"><span/> {en?'Game zone':'Игровая зона'}</div><h1>{en?'Choose a game':'Выбери игру'}</h1><p>{en?'Play, earn coins and unlock new modes.':'Играй, зарабатывай монеты и открывай режимы.'}</p></div><div className="coin-wallet"><span>FIELD COINS</span><strong>${profile?.coins??'—'}</strong></div></div>{message&&<div className="wallet-message">{message}</div>}<div className="game-library">{games.map((item)=>{const locked=Boolean(item.price&&!profile?.unlockedGames.includes(item.id));return <button className={locked?'game-locked':''} disabled={busy} onClick={()=>{void open(item)}} key={item.id}><div className={`game-cover game-cover--${item.id}`}><span>{item.cover}</span>{locked&&<b>🔒</b>}</div><small>{en?item.roleEn:item.role}</small><h2>{en?item.title:item.titleRu}</h2><p>{en?item.textEn:item.text}</p><strong>{locked?`${en?'Unlock':'Разблокировать'} · $${item.price}`:(en?'Play →':'Играть →')}</strong></button>})}</div><p className="reward-hint">🏆 {en?'Completion reward: $50':'Награда за игру: $50'}</p></section>;
 }

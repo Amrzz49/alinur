@@ -108,7 +108,7 @@ export function SquadBuilder({
           <div className="eyebrow">
             <span /> {en ? "Squad builder" : "Конструктор состава"}
           </div>
-          <h1>Squad Builder 26</h1>
+          <h1>{en ? "Squad Builder 26" : "Конструктор состава 26"}</h1>
           <p>
             {en
               ? "Build your dream 4-3-3 team."
