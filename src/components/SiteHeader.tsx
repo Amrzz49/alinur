@@ -12,10 +12,10 @@ import { AvatarPicker } from './AvatarPicker';
 import type { EquippedCosmetics } from '../lib/cosmetics';
 
 type Panel='profile'|'rewards'|'settings'|null;
-type Props={page:Page;score:number;progress:string;playerProgress:PlayerProgress;settings:UserSettings;equipped:EquippedCosmetics;coins:number|null;dailyStreak:number;claimedToday:boolean;userEmail?:string;userName?:string;userAvatar?:string;isGuest:boolean;onGuest:()=>void;onSettingsChange:(settings:UserSettings)=>void;onProgressChange:(progress:PlayerProgress)=>void;onCoinsChange:(coins:number)=>void;onDailyChange:(streak:number)=>void;onSignOut:()=>void;onNavigate:(page:Page)=>void};
+type Props={page:Page;score:number;playerProgress:PlayerProgress;settings:UserSettings;equipped:EquippedCosmetics;coins:number|null;dailyStreak:number;claimedToday:boolean;userEmail?:string;userName?:string;userAvatar?:string;isGuest:boolean;onGuest:()=>void;onSettingsChange:(settings:UserSettings)=>void;onProgressChange:(progress:PlayerProgress)=>void;onCoinsChange:(coins:number)=>void;onDailyChange:(streak:number)=>void;onSignOut:()=>void;onNavigate:(page:Page)=>void};
 
 export function SiteHeader(props:Props){
-  const {page,score,progress,playerProgress,settings,equipped,coins,dailyStreak,claimedToday,userEmail,userName,userAvatar,isGuest,onGuest,onSettingsChange,onProgressChange,onCoinsChange,onDailyChange,onSignOut,onNavigate}=props;
+  const {page,score,playerProgress,settings,equipped,coins,dailyStreak,claimedToday,userEmail,userName,userAvatar,isGuest,onGuest,onSettingsChange,onProgressChange,onCoinsChange,onDailyChange,onSignOut,onNavigate}=props;
   const [panel,setPanel]=useState<Panel>(null);
   const [rewardLoading,setRewardLoading]=useState(false);
   const [rewardClaimed,setRewardClaimed]=useState(claimedToday);
@@ -38,7 +38,6 @@ export function SiteHeader(props:Props){
       <span className="score-pill">✓ {score}</span>
       {loggedIn&&<span className="header-xp">LVL {Math.floor(playerProgress.xp/500)+1}</span>}
       {loggedIn&&<span className="header-wallet" title="Field Coins">$ {coins??'—'}</span>}
-      {page==='training'&&<div className="progress-pill"><strong>{progress}</strong></div>}
       {loggedIn?<div className="profile-wrap header-tools">
         <button className="header-tool" onClick={()=>toggle('rewards')} title={nav.rewards}>🎁</button>
         <button className="header-tool" onClick={()=>toggle('settings')} title={nav.settings}>⚙</button>

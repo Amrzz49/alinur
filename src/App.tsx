@@ -104,7 +104,7 @@ export default function App() {
       {!authReady&&<div className="app-loading" aria-label="Loading"/>}
       {authReady&&<>
       {showSaved&&<SavedToast language={settings.language}/>}
-      {page!=='welcome'&&<SiteHeader page={page} score={score} coins={coins} playerProgress={playerProgress} settings={settings} equipped={equippedCosmetics} dailyStreak={dailyStreak} claimedToday={claimedToday} progress={`${challengeIndex + 1} / ${trainingChallenges.length}`} userEmail={user?.email} userName={user?.user_metadata.name as string | undefined} userAvatar={user?.user_metadata.avatar_url as string | undefined} isGuest={isGuest&&!user} onGuest={enterAsGuest} onSettingsChange={changeSettings} onProgressChange={setPlayerProgress} onCoinsChange={setCoins} onDailyChange={(streak)=>{setDailyStreak(streak);setClaimedToday(true)}} onSignOut={signOut} onNavigate={setPage} />}
+      {page!=='welcome'&&<SiteHeader page={page} score={score} coins={coins} playerProgress={playerProgress} settings={settings} equipped={equippedCosmetics} dailyStreak={dailyStreak} claimedToday={claimedToday} userEmail={user?.email} userName={user?.user_metadata.name as string | undefined} userAvatar={user?.user_metadata.avatar_url as string | undefined} isGuest={isGuest&&!user} onGuest={enterAsGuest} onSettingsChange={changeSettings} onProgressChange={setPlayerProgress} onCoinsChange={setCoins} onDailyChange={(streak)=>{setDailyStreak(streak);setClaimedToday(true)}} onSignOut={signOut} onNavigate={setPage} />}
       {page==='welcome'&&<WelcomeScreen language={settings.language} onGuest={enterAsGuest} onEmail={()=>setPage('auth')}/>}
       {page === 'home' && <HomeScreen language={settings.language} onMatch={()=>setPage('match')} onDemo={()=>setPage('demo')} onExplore={() => setPage('world')} />}
       {page === 'demo'&&<DemoDayScreen onBack={()=>setPage('home')}/>}
@@ -118,6 +118,7 @@ export default function App() {
       {page === 'training' && (finished ? <GameComplete score={score} total={trainingChallenges.length} decisions={trainingDecisions} patterns={playerProgress.mistakePatterns} language={settings.language} onRestart={restart} /> : (
         <section className="game-layout">
           <div className="field-column">
+            <div className="training-field-progress"><span>{settings.language==='en'?'CHALLENGE':'ЗАДАНИЕ'}</span><strong>{challengeIndex+1} / {trainingChallenges.length}</strong></div>
             <div className="eyebrow"><span /> {challenge.difficulty}</div><h1>{challenge.title}</h1>
             <p className="lead">{settings.language==='en'?'You play for the blue team. Study the pitch and make a decision.':'Ты играешь за синюю команду. Посмотри на поле и прими решение.'}</p>
             <FootballField challenge={challenge} selectedChoice={selectedChoice} />
