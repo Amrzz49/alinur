@@ -1,6 +1,346 @@
-.games-screen{padding:55px 0 80px}.games-screen>p{margin:15px 0 35px;color:#a9bad6}.game-library{display:grid;grid-template-columns:repeat(2,minmax(0,390px));gap:20px}.game-library>button{padding:0 0 22px;overflow:hidden;border:1px solid rgba(94,188,246,.27);border-radius:22px;background:linear-gradient(145deg,rgba(8,34,82,.94),rgba(3,16,48,.92));color:#fff;text-align:left;box-shadow:0 20px 48px rgba(0,3,28,.38);transition:.2s}.game-library>button:hover{transform:translateY(-6px);border-color:#51dfe7;box-shadow:0 28px 55px rgba(0,3,28,.55),0 0 24px rgba(52,209,229,.13)}.game-cover{position:relative;display:flex;align-items:center;justify-content:center;height:210px;margin-bottom:20px;overflow:hidden;background:linear-gradient(#0b3271 0 58%,#08705d 58%)}.game-cover::after{content:'';position:absolute;inset:18px;border:2px solid rgba(220,248,255,.5);border-bottom:0}.game-cover span{position:relative;z-index:2;font-size:62px;filter:drop-shadow(0 8px 8px rgba(0,0,0,.4))}.game-cover i{position:absolute;z-index:2;color:#66edf0;font-size:55px;font-style:normal}.game-cover--penalty i{right:25%;top:25%;transform:rotate(-15deg)}.game-cover--keeper{gap:18px}.game-cover--keeper span{font-size:50px}.game-cover--keeper i{position:static;color:#fff;font-size:38px}.game-library small,.game-library h2,.game-library p,.game-library strong{display:block;margin-inline:22px}.game-library small{color:#59e4e9;font-size:9px;font-weight:900;letter-spacing:1px}.game-library h2{margin-top:7px;margin-bottom:8px;font-family:Georgia,serif;font-size:26px}.game-library p{min-height:42px;color:#9eb0cf;font-size:12px;line-height:1.5}.game-library strong{margin-top:16px;color:#6be5e9;font-size:12px}.game-back{margin-bottom:18px;padding:8px 11px;border:1px solid rgba(95,187,241,.25);border-radius:9px;background:rgba(7,31,74,.75);color:#9fdce7;font-size:11px;font-weight:800}
-.goalkeeper-game{max-width:900px;margin:0 auto;padding:30px 0 70px}.keeper-game-heading{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:25px}.keeper-game-heading h1{font-size:52px}.keeper-game-heading p{margin:11px 0 0;color:#a9bad6}.keeper-arena{background:radial-gradient(circle at 50% 5%,rgba(45,132,222,.55),transparent 45%),linear-gradient(#071b4b 0 52%,#08705d 52%)}.keeper-finish{max-width:530px;margin:7vh auto;padding:43px;border:1px solid rgba(88,199,244,.3);border-radius:26px;background:rgba(4,22,58,.94);text-align:center}.keeper-finish>div{font-size:55px}.keeper-finish h1{margin:12px}.keeper-finish>strong{display:block;margin:22px;color:#5de5ea;font-family:Georgia,serif;font-size:70px}.keeper-finish>strong small{display:block;color:#8fa4c7;font-family:Inter,sans-serif;font-size:14px}.keeper-finish p{color:#a7b8d4;line-height:1.55}.keeper-finish .play-button{margin-top:18px}
-.games-title{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;margin-bottom:30px}.games-title p{color:#a9bad6}.coin-wallet{min-width:145px;padding:14px 20px;border-radius:999px;background:#fff;color:#111;text-align:center}.coin-wallet span{display:block;font-size:9px;font-weight:900;letter-spacing:1px}.coin-wallet strong{font-size:25px}.wallet-message{margin:-12px 0 22px;padding:12px 16px;border-radius:18px;background:#fff;color:#111;font-weight:700}.game-library>button.game-locked{opacity:.8}.game-locked .game-cover{filter:grayscale(.75)}.game-cover b{position:absolute;z-index:4;right:15px;top:15px;display:grid;place-items:center;width:43px;height:43px;border-radius:50%;background:#111;font-size:20px}.reward-hint{margin-top:24px!important;color:#fff!important;font-weight:700}
-.games-loading__title{width:min(420px,70%);height:58px;margin-bottom:30px;border-radius:14px;background:rgba(255,255,255,.1);animation:game-loading 1s ease-in-out infinite alternate}.game-skeleton{height:320px;padding:18px;border-radius:18px;background:rgba(255,255,255,.08)}.game-skeleton i{display:block;height:190px;border-radius:12px;background:rgba(255,255,255,.1)}.game-skeleton span{display:block;width:70%;height:12px;margin-top:18px;border-radius:99px;background:rgba(255,255,255,.1)}.game-skeleton span:last-child{width:45%;margin-top:10px}@keyframes game-loading{to{opacity:.45}}
-.games-load-error{max-width:520px;margin:50px auto;text-align:center}.games-load-error>span{font-size:42px}.games-load-error h2{margin:12px 0 6px}.games-load-error p{color:#aab6cf}.games-load-error button{padding:12px 18px;border:0;border-radius:99px;background:#fff;color:#111;font-weight:850}
-@media(max-width:700px){.game-library{grid-template-columns:1fr}.game-cover{height:175px}.goalkeeper-game{padding-bottom:90px}.keeper-game-heading h1{font-size:38px}.keeper-game-heading p{font-size:12px}.keeper-finish{padding:34px 20px}.games-title{align-items:flex-start}.coin-wallet{min-width:110px;padding:11px}.games-title h1{font-size:42px}}
+.games-screen {
+  padding: 55px 0 80px;
+}
+.games-screen > p {
+  margin: 15px 0 35px;
+  color: #a9bad6;
+}
+.game-library {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 390px));
+  gap: 20px;
+}
+.game-library > button {
+  padding: 0 0 22px;
+  overflow: hidden;
+  border: 1px solid rgba(94, 188, 246, 0.27);
+  border-radius: 22px;
+  background: linear-gradient(
+    145deg,
+    rgba(8, 34, 82, 0.94),
+    rgba(3, 16, 48, 0.92)
+  );
+  color: #fff;
+  text-align: left;
+  box-shadow: 0 20px 48px rgba(0, 3, 28, 0.38);
+  transition: 0.2s;
+}
+.game-library > button:hover {
+  transform: translateY(-6px);
+  border-color: #51dfe7;
+  box-shadow:
+    0 28px 55px rgba(0, 3, 28, 0.55),
+    0 0 24px rgba(52, 209, 229, 0.13);
+}
+.game-cover {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 210px;
+  margin-bottom: 20px;
+  overflow: hidden;
+  background: linear-gradient(#0b3271 0 58%, #08705d 58%);
+}
+.game-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.35s ease;
+}
+.game-library > button:hover .game-cover img {
+  transform: scale(1.04);
+}
+.game-cover::before {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 55%, rgba(2, 12, 34, 0.45));
+}
+.game-cover::after {
+  content: "";
+  position: absolute;
+  inset: 18px;
+  border: 2px solid rgba(220, 248, 255, 0.5);
+  border-bottom: 0;
+}
+.game-cover span {
+  position: relative;
+  z-index: 2;
+  font-size: 62px;
+  filter: drop-shadow(0 8px 8px rgba(0, 0, 0, 0.4));
+}
+.game-cover i {
+  position: absolute;
+  z-index: 2;
+  color: #66edf0;
+  font-size: 55px;
+  font-style: normal;
+}
+.game-cover--penalty i {
+  right: 25%;
+  top: 25%;
+  transform: rotate(-15deg);
+}
+.game-cover--keeper {
+  gap: 18px;
+}
+.game-cover--keeper span {
+  font-size: 50px;
+}
+.game-cover--keeper i {
+  position: static;
+  color: #fff;
+  font-size: 38px;
+}
+.game-library small,
+.game-library h2,
+.game-library p,
+.game-library strong {
+  display: block;
+  margin-inline: 22px;
+}
+.game-library small {
+  color: #59e4e9;
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 1px;
+}
+.game-library h2 {
+  margin-top: 7px;
+  margin-bottom: 8px;
+  font-family: Georgia, serif;
+  font-size: 26px;
+}
+.game-library p {
+  min-height: 42px;
+  color: #9eb0cf;
+  font-size: 12px;
+  line-height: 1.5;
+}
+.game-library strong {
+  margin-top: 16px;
+  color: #6be5e9;
+  font-size: 12px;
+}
+.game-back {
+  margin-bottom: 18px;
+  padding: 8px 11px;
+  border: 1px solid rgba(95, 187, 241, 0.25);
+  border-radius: 9px;
+  background: rgba(7, 31, 74, 0.75);
+  color: #9fdce7;
+  font-size: 11px;
+  font-weight: 800;
+}
+.goalkeeper-game {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 30px 0 70px;
+}
+.keeper-game-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 25px;
+}
+.keeper-game-heading h1 {
+  font-size: 52px;
+}
+.keeper-game-heading p {
+  margin: 11px 0 0;
+  color: #a9bad6;
+}
+.keeper-arena {
+  background:
+    radial-gradient(
+      circle at 50% 5%,
+      rgba(45, 132, 222, 0.55),
+      transparent 45%
+    ),
+    linear-gradient(#071b4b 0 52%, #08705d 52%);
+}
+.keeper-finish {
+  max-width: 530px;
+  margin: 7vh auto;
+  padding: 43px;
+  border: 1px solid rgba(88, 199, 244, 0.3);
+  border-radius: 26px;
+  background: rgba(4, 22, 58, 0.94);
+  text-align: center;
+}
+.keeper-finish > div {
+  font-size: 55px;
+}
+.keeper-finish h1 {
+  margin: 12px;
+}
+.keeper-finish > strong {
+  display: block;
+  margin: 22px;
+  color: #5de5ea;
+  font-family: Georgia, serif;
+  font-size: 70px;
+}
+.keeper-finish > strong small {
+  display: block;
+  color: #8fa4c7;
+  font-family: Inter, sans-serif;
+  font-size: 14px;
+}
+.keeper-finish p {
+  color: #a7b8d4;
+  line-height: 1.55;
+}
+.keeper-finish .play-button {
+  margin-top: 18px;
+}
+.games-title {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 30px;
+}
+.games-title p {
+  color: #a9bad6;
+}
+.coin-wallet {
+  min-width: 145px;
+  padding: 14px 20px;
+  border-radius: 999px;
+  background: #fff;
+  color: #111;
+  text-align: center;
+}
+.coin-wallet span {
+  display: block;
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 1px;
+}
+.coin-wallet strong {
+  font-size: 25px;
+}
+.wallet-message {
+  margin: -12px 0 22px;
+  padding: 12px 16px;
+  border-radius: 18px;
+  background: #fff;
+  color: #111;
+  font-weight: 700;
+}
+.game-library > button.game-locked {
+  opacity: 0.8;
+}
+.game-locked .game-cover {
+  filter: grayscale(0.75);
+}
+.game-cover b {
+  position: absolute;
+  z-index: 4;
+  right: 15px;
+  top: 15px;
+  display: grid;
+  place-items: center;
+  width: 43px;
+  height: 43px;
+  border-radius: 50%;
+  background: #111;
+  font-size: 20px;
+}
+.reward-hint {
+  margin-top: 24px !important;
+  color: #fff !important;
+  font-weight: 700;
+}
+.games-loading__title {
+  width: min(420px, 70%);
+  height: 58px;
+  margin-bottom: 30px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.1);
+  animation: game-loading 1s ease-in-out infinite alternate;
+}
+.game-skeleton {
+  height: 320px;
+  padding: 18px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.08);
+}
+.game-skeleton i {
+  display: block;
+  height: 190px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.1);
+}
+.game-skeleton span {
+  display: block;
+  width: 70%;
+  height: 12px;
+  margin-top: 18px;
+  border-radius: 99px;
+  background: rgba(255, 255, 255, 0.1);
+}
+.game-skeleton span:last-child {
+  width: 45%;
+  margin-top: 10px;
+}
+@keyframes game-loading {
+  to {
+    opacity: 0.45;
+  }
+}
+.games-load-error {
+  max-width: 520px;
+  margin: 50px auto;
+  text-align: center;
+}
+.games-load-error > span {
+  font-size: 42px;
+}
+.games-load-error h2 {
+  margin: 12px 0 6px;
+}
+.games-load-error p {
+  color: #aab6cf;
+}
+.games-load-error button {
+  padding: 12px 18px;
+  border: 0;
+  border-radius: 99px;
+  background: #fff;
+  color: #111;
+  font-weight: 850;
+}
+@media (max-width: 700px) {
+  .game-library {
+    grid-template-columns: 1fr;
+  }
+  .game-cover {
+    height: 175px;
+  }
+  .goalkeeper-game {
+    padding-bottom: 90px;
+  }
+  .keeper-game-heading h1 {
+    font-size: 38px;
+  }
+  .keeper-game-heading p {
+    font-size: 12px;
+  }
+  .keeper-finish {
+    padding: 34px 20px;
+  }
+  .games-title {
+    align-items: flex-start;
+  }
+  .coin-wallet {
+    min-width: 110px;
+    padding: 11px;
+  }
+  .games-title h1 {
+    font-size: 42px;
+  }
+}
