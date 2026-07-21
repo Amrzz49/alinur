@@ -1,0 +1,28 @@
+import { chromium } from 'playwright';
+import { readdir, rename, rm } from 'node:fs/promises';
+
+const output='public/demo';
+await rm(`${output}/fieldmind-demo.webm`,{force:true});
+const browser=await chromium.launch({headless:true});
+const context=await browser.newContext({viewport:{width:1280,height:720},recordVideo:{dir:output,size:{width:1280,height:720}}});
+const page=await context.newPage();
+await page.goto('http://127.0.0.1:4173',{waitUntil:'networkidle'});
+await page.evaluate(()=>localStorage.clear());
+await page.reload({waitUntil:'networkidle'});
+await page.getByRole('button',{name:/Continue|Продолжить/}).click();
+await page.waitForTimeout(1000);
+await page.getByRole('button',{name:/Demo account|Демо-аккаунт/}).click();
+await page.waitForTimeout(1800);
+await page.screenshot({path:`${output}/video-poster.png`});
+await page.getByRole('button',{name:/Pass right/}).click();
+await page.waitForTimeout(2500);
+await page.getByRole('button',{name:/Continue/}).click();
+await page.waitForTimeout(2500);
+await page.getByRole('button',{name:/View progress/}).click();
+await page.waitForTimeout(3000);
+await context.close();
+await browser.close();
+const videos=(await readdir(output)).filter((name)=>name.endsWith('.webm'));
+const recorded=videos.find((name)=>name!=='fieldmind-demo.webm');
+if(!recorded)throw new Error('Demo video was not created.');
+await rename(`${output}/${recorded}`,`${output}/fieldmind-demo.webm`);

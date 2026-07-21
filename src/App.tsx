@@ -17,15 +17,16 @@ import type { TrainingDecision } from './lib/aiCoach';
 import { defaultProgress, loadPlayerProgress, recordActivity, trainingSkillChanges, type Activity, type PlayerProgress } from './lib/playerProgress';
 import { defaultSettings, loadUserSettings, saveUserSettings, type UserSettings } from './lib/userSettings';
 import { localizeChallenge } from './lib/trainingTranslations';
-import { loadGuestProfile, recordGuestActivity, saveGuestProfile } from './lib/guestProfile';
+import { createDemoProfile, loadGuestProfile, recordGuestActivity, saveGuestProfile } from './lib/guestProfile';
 import { WelcomeScreen } from './components/WelcomeScreen';
 import { SavedToast } from './components/SavedToast';
 import { ShopScreen } from './components/ShopScreen';
 import { defaultEquipped,defaultOwned,type EquippedCosmetics } from './lib/cosmetics';
 import { DemoDayScreen } from './components/DemoDayScreen';
 import { PlayerReport } from './components/ParentReport';
+import { DemoKitScreen } from './components/DemoKitScreen';
 
-export type Page = 'home' | 'demo' | 'parent' | 'match' | 'training' | 'games' | 'shop' | 'quiz' | 'world' | 'auth' | 'welcome';
+export type Page = 'home' | 'demo' | 'demoKit' | 'parent' | 'match' | 'training' | 'games' | 'shop' | 'quiz' | 'world' | 'auth' | 'welcome';
 const trainingChallenges=challenges.slice(0,8);
 
 export default function App() {
@@ -70,9 +71,10 @@ export default function App() {
   useEffect(()=>{document.documentElement.style.setProperty('--app-brightness',String(settings.brightness/100));document.documentElement.dataset.textSize=settings.textSize;document.documentElement.dataset.reducedMotion=String(settings.reducedMotion);document.documentElement.lang=settings.language},[settings]);
   useEffect(()=>{if(!showSaved)return;const timer=window.setTimeout(()=>setShowSaved(false),2600);return()=>clearTimeout(timer)},[showSaved,settings]);
   const changeSettings=async(next:UserSettings)=>{setSettings(next);try{if(isGuest)localStorage.setItem('fieldmind-guest-settings',JSON.stringify(next));else await saveUserSettings(next);setShowSaved(true)}catch{setShowSaved(false)}};
-  const enterAsGuest=()=>{localStorage.setItem('fieldmind-guest','true');const guest=loadGuestProfile();setCoins(guest.coins);setUnlockedGames(guest.unlockedGames);setOwnedCosmetics(guest.ownedCosmetics);setEquippedCosmetics(guest.equippedCosmetics);setDailyStreak(guest.dailyStreak);setClaimedToday(guest.lastDailyReward===new Date().toISOString().slice(0,10));setPlayerProgress(guest.progress);setGameProfileReady(true);setIsGuest(true);const saved=localStorage.getItem('fieldmind-guest-settings');if(saved)try{setSettings({...defaultSettings,...JSON.parse(saved) as UserSettings})}catch{localStorage.removeItem('fieldmind-guest-settings')}setPage('home')};
+  const enterAsGuest=()=>{localStorage.removeItem('fieldmind-demo');localStorage.setItem('fieldmind-guest','true');const guest=loadGuestProfile();setCoins(guest.coins);setUnlockedGames(guest.unlockedGames);setOwnedCosmetics(guest.ownedCosmetics);setEquippedCosmetics(guest.equippedCosmetics);setDailyStreak(guest.dailyStreak);setClaimedToday(guest.lastDailyReward===new Date().toISOString().slice(0,10));setPlayerProgress(guest.progress);setGameProfileReady(true);setIsGuest(true);const saved=localStorage.getItem('fieldmind-guest-settings');if(saved)try{setSettings({...defaultSettings,...JSON.parse(saved) as UserSettings})}catch{localStorage.removeItem('fieldmind-guest-settings')}setPage('home')};
+  const enterDemoAccount=()=>{createDemoProfile();localStorage.setItem('fieldmind-guest','true');localStorage.setItem('fieldmind-demo','true');setIsGuest(true);setSettings({...defaultSettings,language:'en'});const profile=loadGuestProfile();setCoins(profile.coins);setUnlockedGames(profile.unlockedGames);setOwnedCosmetics(profile.ownedCosmetics);setEquippedCosmetics(profile.equippedCosmetics);setDailyStreak(profile.dailyStreak);setClaimedToday(true);setPlayerProgress(profile.progress);setGameProfileReady(true);setPage('demo')};
   const updateCosmetics=(nextCoins:number,owned:string[],equipped:EquippedCosmetics)=>{setCoins(nextCoins);setOwnedCosmetics(owned);setEquippedCosmetics(equipped)};
-  const signOut=()=>{if(isGuest){localStorage.removeItem('fieldmind-guest');setIsGuest(false);setSettings(defaultSettings);setPage('welcome');return}void supabase.auth.signOut()};
+  const signOut=()=>{if(isGuest){localStorage.removeItem('fieldmind-guest');localStorage.removeItem('fieldmind-demo');setIsGuest(false);setSettings(defaultSettings);setPage('welcome');return}void supabase.auth.signOut()};
 
   const trackActivity=async(activity:Activity,decisions:TrainingDecision[]=[])=>{
     const changes=activity==='training'?trainingSkillChanges(decisions):{};
@@ -105,9 +107,10 @@ export default function App() {
       {authReady&&<>
       {showSaved&&<SavedToast language={settings.language}/>}
       {page!=='welcome'&&<SiteHeader page={page} score={score} coins={coins} playerProgress={playerProgress} settings={settings} equipped={equippedCosmetics} dailyStreak={dailyStreak} claimedToday={claimedToday} userEmail={user?.email} userName={user?.user_metadata.name as string | undefined} userAvatar={user?.user_metadata.avatar_url as string | undefined} isGuest={isGuest&&!user} onGuest={enterAsGuest} onSettingsChange={changeSettings} onProgressChange={setPlayerProgress} onCoinsChange={setCoins} onDailyChange={(streak)=>{setDailyStreak(streak);setClaimedToday(true)}} onSignOut={signOut} onNavigate={setPage} />}
-      {page==='welcome'&&<WelcomeScreen language={settings.language} onGuest={enterAsGuest} onEmail={()=>setPage('auth')}/>}
+      {page==='welcome'&&<WelcomeScreen language={settings.language} onGuest={enterAsGuest} onDemo={enterDemoAccount} onEmail={()=>setPage('auth')}/>}
       {page === 'home' && <HomeScreen language={settings.language} onMatch={()=>setPage('match')} onDemo={()=>setPage('demo')} />}
-      {page === 'demo'&&<DemoDayScreen language={settings.language} onBack={()=>setPage('home')}/>}
+      {page === 'demo'&&<DemoDayScreen language={settings.language} onBack={()=>setPage('home')} onOpenKit={()=>setPage('demoKit')}/>}
+      {page === 'demoKit'&&<DemoKitScreen language={settings.language} onBack={()=>setPage('demo')}/>}
       {page==='parent'&&<PlayerReport language={settings.language} progress={playerProgress} onBack={()=>setPage('home')}/>}
       {page === 'match' && <FieldCapsMatch language={settings.language} cosmetics={equippedCosmetics} onBack={()=>setPage('home')} onWin={()=>{void rewardMatchWin()}}/>}
       {page === 'world' && <WorldScreen language={settings.language} />}

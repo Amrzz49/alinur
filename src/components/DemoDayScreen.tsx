@@ -6,13 +6,13 @@ const choices:{id:Choice;label:string;icon:string}[]=[
   {id:'dribble',label:'Дриблинг',icon:'⌁'},{id:'shot',label:'Удар',icon:'◎'},
 ];
 
-export function DemoDayScreen({language,onBack}:{language:'ru'|'en';onBack:()=>void}){
+export function DemoDayScreen({language,onBack,onOpenKit}:{language:'ru'|'en';onBack:()=>void;onOpenKit:()=>void}){
   const en=language==='en';
   const [step,setStep]=useState(0);
   const [choice,setChoice]=useState<Choice|null>(null);
   const correct=choice==='right';
   return <section className="demo-day">
-    <header className="demo-header"><button className="game-back" onClick={onBack}>← {en?'Home':'На главную'}</button><div><span>DEMO DAY · {en?'3 MINUTES':'3 МИНУТЫ'}</span><b>{step+1} / 3</b></div><i><em style={{width:`${((step+1)/3)*100}%`}}/></i></header>
+    <header className="demo-header"><button className="game-back" onClick={onBack}>← {en?'Home':'На главную'}</button><div><span>DEMO DAY · {en?'3 MINUTES':'3 МИНУТЫ'}</span><b>{step+1} / 3</b><button className="demo-kit-link" onClick={onOpenKit}>{en?'Presentation kit':'Материалы'}</button></div><i><em style={{width:`${((step+1)/3)*100}%`}}/></i></header>
     {step===0&&<section className="demo-scene">
       <div className="demo-copy"><span>0:00 — {en?'FOOTBALL DECISION':'ФУТБОЛЬНОЕ РЕШЕНИЕ'}</span><h1>{en?'Find the best move':'Найди лучший ход'}</h1><p>{en?'You are blue. The centre is blocked — where will you attack?':'Ты играешь за синих. Соперник закрывает центр — куда продолжить атаку?'}</p></div>
       <div className="demo-layout"><DemoPitch choice={choice}/><article className="demo-decision"><h2>{en?'What will you do?':'Что сделаешь?'}</h2><div>{choices.map((item)=><button className={choice===item.id?'active':''} disabled={choice!==null} onClick={()=>setChoice(item.id)} key={item.id}><i>{item.icon}</i>{en?({left:'Pass left',right:'Pass right',dribble:'Dribble',shot:'Shoot'} as const)[item.id]:item.label}</button>)}</div>{choice&&<div className={`demo-feedback ${correct?'correct':'wrong'}`}><strong>{correct?(en?'Great decision!':'Отличное решение!'):(en?'You can do better':'Можно сыграть лучше')}</strong><p>{correct?(en?'The right flank is open, creating a 2v1.':'Правый фланг свободен, а партнёр уже набирает скорость. Такой пас создаёт выход 2 в 1.'):(en?'The centre is crowded. A professional spots the free player on the right.':'Центр перегружен. Профессионал сначала заметил бы свободного игрока справа.')}</p><small>{en?'AI COACH · 2-second analysis':'AI-ТРЕНЕР · анализ за 2 секунды'}</small><button onClick={()=>setStep(1)}>{en?'Continue':'Продолжить'} <span>→</span></button></div>}</article></div>
