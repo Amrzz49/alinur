@@ -44,7 +44,9 @@ export function SiteHeader(props:Props){
         <button className={`account-button account-button--${equipped.frame}`} onClick={()=>toggle('profile')} title={nav.profile}>{avatar&&!isGuest?<img src={avatar} alt=""/>:isGuest?'G':(userName||userEmail||'F').charAt(0).toUpperCase()}</button>
         {panel&&<div className="profile-menu profile-menu--rewards">
           {panel==='profile'&&<><span>{nav.account}</span><strong>{isGuest?nav.guest:userName||nav.player}</strong><small>{isGuest?'FieldMind Guest':userEmail}</small>{!isGuest&&<AvatarPicker language={settings.language} onUploaded={setAvatar}/>} {!isGuest&&<ProfileCompletion progress={playerProgress} dailyStreak={dailyStreak} language={settings.language}/>}<PlayerProgressCard progress={playerProgress} language={settings.language} rewardLoading={taskRewardLoading} onClaimReward={claimTasks}/><button onClick={logout}>{nav.logout}</button></>}
-          {panel==='rewards'&&<DailyRewards streak={dailyStreak} claimedToday={rewardClaimed} loading={rewardLoading} onClaim={claim}/>}
+          {panel==='rewards'&&(
+            <DailyRewards language={settings.language} streak={dailyStreak} claimedToday={rewardClaimed} loading={rewardLoading} onClaim={claim}/>
+          )}
           {panel==='settings'&&<><SettingsPanel settings={settings} onChange={onSettingsChange}/><button className="parent-report-link" onClick={()=>{setPanel(null);onNavigate('parent')}}>📊 {nav.report}</button></>}
         </div>}
       </div>:<div className="guest-entry"><button className="guest-entry__button" onClick={onGuest}>{nav.guestLogin}</button><button className="account-login" onClick={()=>onNavigate('auth')}>{nav.login}</button></div>}

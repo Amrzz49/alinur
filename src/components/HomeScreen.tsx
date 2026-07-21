@@ -1,6 +1,6 @@
-type Props = { language:'ru'|'en'; onMatch:()=>void; onExplore:()=>void; onDemo:()=>void };
+type Props = { language:'ru'|'en'; onMatch:()=>void; onDemo:()=>void };
 
-export function HomeScreen({ language, onMatch, onExplore, onDemo }: Props) {
+export function HomeScreen({ language, onMatch, onDemo }: Props) {
   const en=language==='en';
   return (
     <section className="home-screen">
@@ -8,8 +8,7 @@ export function HomeScreen({ language, onMatch, onExplore, onDemo }: Props) {
         <div className="eyebrow"><span /> {en?'Train your football mind':'Тренируй футбольное мышление'}</div>
         <h1>{en?'Think faster.':'Думай быстрее.'}<br /><em>{en?'Play smarter.':'Играй умнее.'}</em></h1>
         <p>{en?'Make decisions on a 2D pitch, review every move and learn to see the game like a professional.':'Принимай решения на 2D-поле, получай разбор каждого хода и учись видеть игру как профессионал.'}</p>
-        <div className="hero-actions"><button className="play-button" onClick={onMatch}>{en?'Start match':'Начать матч'} <span>→</span></button><button className="explore-button" onClick={onDemo}>{en?'3-minute demo':'Демо за 3 минуты'}</button><button className="explore-button" onClick={onExplore}>{en?'Explore stars':'Смотреть звёзд'}</button></div>
-        <div className="hero-numbers"><div><strong>8</strong><span>{en?'situations':'ситуаций'}</span></div><div><strong>2</strong><span>{en?'levels':'уровня'}</span></div><div><strong>4</strong><span>{en?'decisions':'решения'}</span></div></div>
+        <div className="hero-actions"><button className="play-button" onClick={onMatch}>{en?'Start match':'Начать матч'} <span>→</span></button><button className="explore-button" onClick={onDemo}>{en?'3-minute demo':'Демо за 3 минуты'}</button></div>
       </div>
       <div className="hero-board">
         <div className="mini-pitch"><div className="mini-line" /><i className="mini-player blue p1" /><i className="mini-player blue p2" /><i className="mini-player blue p3" /><i className="mini-player red p4" /><i className="mini-player red p5" /><span className="mini-ball">⚽</span><span className="move-arrow">↗</span></div>

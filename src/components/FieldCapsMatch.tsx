@@ -42,14 +42,17 @@ const createMatch = () => {
 };
 
 export function FieldCapsMatch({
+  language,
   cosmetics,
   onBack,
   onWin,
 }: {
+  language:'ru'|'en';
   cosmetics:EquippedCosmetics;
   onBack: () => void;
   onWin: () => void;
 }) {
+  const en=language==='en';
   const canvasRef = useRef<HTMLCanvasElement>(null),
     matchRef = useRef(createMatch()),
     dragRef = useRef<{
@@ -67,7 +70,7 @@ export function FieldCapsMatch({
     aiShotRef = useRef(false);
   const [score, setScore] = useState({ blue: 0, red: 0 }),
     [turn, setTurn] = useState<"blue" | "red">("blue"),
-    [message, setMessage] = useState("Потяни синюю фишку назад и отпусти"),
+    [message, setMessage] = useState(en?"Pull a blue cap back and release":"Потяни синюю фишку назад и отпусти"),
     [winner, setWinner] = useState<"blue" | "red" | null>(null),
     [difficulty, setDifficulty] = useState<Difficulty>("medium"),
     [opponent,setOpponent]=useState<OpponentMode>("bot");
@@ -83,7 +86,7 @@ export function FieldCapsMatch({
     celebratingRef.current = false;
     turnRef.current = "blue";
     setTurn("blue");
-    setMessage("Новый матч! Твой ход");
+    setMessage(en?"New match! Your turn":"Новый матч! Твой ход");
   };
   const changeDifficulty = (level: Difficulty) => {
     difficultyRef.current = level;
@@ -133,7 +136,7 @@ export function FieldCapsMatch({
         item.vy = 0;
       });
       current.ball.x = side === "blue" ? 988 : 12;
-      setMessage(side === "blue" ? "ГОООЛ! Мяч в сетке ⚽" : "Гол соперника");
+      setMessage(side === "blue" ? (en?"GOAL! ⚽":"ГОООЛ! Мяч в сетке ⚽") : (en?"Opponent scored":"Гол соперника"));
       setScore((value) => {
         const next = { ...value, [side]: value[side] + 1 };
         if (next[side] >= 3) {
@@ -142,8 +145,8 @@ export function FieldCapsMatch({
           if (side === "blue"&&opponentRef.current==="bot") onWin();
           setMessage(
             side === "blue"
-              ? "ПОБЕДА! Ты получил $25 🏆"
-              : "Матч окончен — соперник забил 3 гола",
+              ? (en?"VICTORY! You earned $25 🏆":"ПОБЕДА! Ты получил $25 🏆")
+              : (en?"Match over — opponent scored 3":"Матч окончен — соперник забил 3 гола"),
           );
         } else {
           const scheduledVersion=matchVersionRef.current;
@@ -158,8 +161,8 @@ export function FieldCapsMatch({
             setTurn(kickoff);
             setMessage(
               kickoff === "blue"
-                ? "Ты пропустил — начинай с центра"
-                : opponentRef.current==="bot"?"AI пропустил — его розыгрыш с центра":"Игрок справа пропустил — его ход",
+                ? (en?"You conceded — restart from centre":"Ты пропустил — начинай с центра")
+                : opponentRef.current==="bot"?(en?"AI conceded — its kick-off":"AI пропустил — его розыгрыш с центра"):(en?"Right player conceded — their turn":"Игрок справа пропустил — его ход"),
             );
           }, 1100);
         }
@@ -441,7 +444,7 @@ export function FieldCapsMatch({
           aiShotRef.current = false;
           turnRef.current = "blue";
           setTurn("blue");
-          setMessage("Мяч остановился — твой ход");
+          setMessage(en?"Ball stopped — your turn":"Мяч остановился — твой ход");
           draw();
           frame = requestAnimationFrame(tick);
           return;
@@ -494,7 +497,7 @@ export function FieldCapsMatch({
           cap.vy = Math.sin(angle) * settings.speed;
           aiAimRef.current = null;
           aiShotRef.current = true;
-          setMessage("Удар AI — жди остановки мяча");
+          setMessage(en?"AI shoots — wait for the ball to stop":"Удар AI — жди остановки мяча");
           aiTimer = 0;
         }, aiSettings[difficultyRef.current].delay);
       }
@@ -520,7 +523,7 @@ export function FieldCapsMatch({
     if (opponentRef.current==="bot"&&turnRef.current !== "blue") return;
     const pieces=[...matchRef.current.caps,matchRef.current.ball];
     if (pieces.some((item)=>Math.hypot(item.vx,item.vy)>0.12)) {
-      setMessage("Подожди, пока мяч остановится");
+      setMessage(en?"Wait for the ball to stop":"Подожди, пока мяч остановится");
       return;
     }
     const p = point(event),
@@ -532,7 +535,7 @@ export function FieldCapsMatch({
     if (cap) {
       event.currentTarget.setPointerCapture(event.pointerId);
       dragRef.current = { cap, start: p, now: p };
-      setMessage("Оттяни назад: чем дальше, тем сильнее удар");
+      setMessage(en?"Pull back farther for more power":"Оттяни назад: чем дальше, тем сильнее удар");
     }
   };
   const move = (event: React.PointerEvent<HTMLCanvasElement>) => {
@@ -547,7 +550,7 @@ export function FieldCapsMatch({
     );
     if (distance < 5) {
       dragRef.current = null;
-      setMessage("Потяни фишку назад сильнее");
+      setMessage(en?"Pull the cap back farther":"Потяни фишку назад сильнее");
       return;
     }
     const rawAngle = Math.atan2(
@@ -562,12 +565,12 @@ export function FieldCapsMatch({
     const nextTurn=turnRef.current==="blue"?"red":"blue";
     turnRef.current = nextTurn;
     setTurn(nextTurn);
-    setMessage(opponentRef.current==="bot"?"Ход соперника...":nextTurn==="blue"?"Ход игрока слева":"Ход игрока справа");
+    setMessage(opponentRef.current==="bot"?(en?"Opponent’s turn…":"Ход соперника..."):nextTurn==="blue"?(en?"Left player’s turn":"Ход игрока слева"):(en?"Right player’s turn":"Ход игрока справа"));
   };
   const cancelDrag = () => {
     if (!dragRef.current) return;
     dragRef.current = null;
-    setMessage("Прицел сброшен — попробуй удар ещё раз");
+    setMessage(en?"Aim reset — try again":"Прицел сброшен — попробуй удар ещё раз");
   };
   useEffect(() => {
     const finishOutsideField = () => up();
@@ -586,53 +589,53 @@ export function FieldCapsMatch({
   return (
     <section className="caps-match">
       <button className="game-back" onClick={onBack}>
-        ← На главную
+        ← {en?'Home':'На главную'}
       </button>
       <header>
         <div>
           <div className="eyebrow">
-            <span /> Матч до 3 голов · награда $25
+            <span /> {en?'First to 3 goals · $25 reward':'Матч до 3 голов · награда $25'}
           </div>
           <div className="caps-title-row">
             <h1>Field Caps</h1>
             <div className={`caps-turn caps-turn--${turn}`}>
               <i />
-              {opponent==="friend"?(turn === "blue" ? "ХОД ИГРОКА СЛЕВА" : "ХОД ИГРОКА СПРАВА"):(turn === "blue" ? "ТВОЙ ХОД" : "ХОД AI")}
+              {opponent==="friend"?(turn === "blue" ? (en?'LEFT PLAYER':'ХОД ИГРОКА СЛЕВА') : (en?'RIGHT PLAYER':'ХОД ИГРОКА СПРАВА')):(turn === "blue" ? (en?'YOUR TURN':'ТВОЙ ХОД') : (en?'AI TURN':'ХОД AI'))}
             </div>
           </div>
         </div>
         <div className="caps-score">
-          <span>{opponent==="friend"?'СЛЕВА':'ТЫ'}</span>
+          <span>{opponent==="friend"?(en?'LEFT':'СЛЕВА'):(en?'YOU':'ТЫ')}</span>
           <strong>
             {score.blue} : {score.red}
           </strong>
-          <span>{opponent==="friend"?'СПРАВА':'AI'}</span>
+          <span>{opponent==="friend"?(en?'RIGHT':'СПРАВА'):'AI'}</span>
         </div>
       </header>
       <div className="caps-difficulty">
-        <span>РЕЖИМ</span>
-        <button className={opponent === "bot" ? "active" : ""} onClick={() => changeOpponent("bot")}>Против бота</button>
-        <button className={opponent === "friend" ? "active" : ""} onClick={() => changeOpponent("friend")}>Против друга</button>
+        <span>{en?'MODE':'РЕЖИМ'}</span>
+        <button className={opponent === "bot" ? "active" : ""} onClick={() => changeOpponent("bot")}>{en?'Vs AI':'Против бота'}</button>
+        <button className={opponent === "friend" ? "active" : ""} onClick={() => changeOpponent("friend")}>{en?'Vs friend':'Против друга'}</button>
       </div>
       {opponent==="bot"&&<div className="caps-difficulty">
-        <span>СЛОЖНОСТЬ AI</span>
+        <span>{en?'AI DIFFICULTY':'СЛОЖНОСТЬ AI'}</span>
         <button
           className={difficulty === "easy" ? "active" : ""}
           onClick={() => changeDifficulty("easy")}
         >
-          Лёгкий
+          {en?'Easy':'Лёгкий'}
         </button>
         <button
           className={difficulty === "medium" ? "active" : ""}
           onClick={() => changeDifficulty("medium")}
         >
-          Средний
+          {en?'Medium':'Средний'}
         </button>
         <button
           className={difficulty === "hard" ? "active" : ""}
           onClick={() => changeDifficulty("hard")}
         >
-          Сложный
+          {en?'Hard':'Сложный'}
         </button>
       </div>}
       <div className="caps-canvas-wrap">
@@ -653,22 +656,22 @@ export function FieldCapsMatch({
         {winner && (
           <div className="caps-finish">
             <span>{winner === "blue" ? "🏆" : "⚽"}</span>
-            <h2>{opponent==="friend"?(winner === "blue" ? "Победил игрок слева!" : "Победил игрок справа!"):(winner === "blue" ? "Ты победил!" : "Победил соперник")}</h2>
+            <h2>{opponent==="friend"?(winner === "blue" ? (en?'Left player wins!':'Победил игрок слева!') : (en?'Right player wins!':'Победил игрок справа!')):(winner === "blue" ? (en?'You won!':'Ты победил!') : (en?'Opponent wins':'Победил соперник'))}</h2>
             <p>
               {winner === "blue"&&opponent==="bot"
-                ? `+$25 · Финальный счёт ${score.blue} : ${score.red}`
-                : `Финальный счёт: ${score.blue} : ${score.red}`}
+                ? `+$25 · ${en?'Final score':'Финальный счёт'} ${score.blue} : ${score.red}`
+                : `${en?'Final score':'Финальный счёт'}: ${score.blue} : ${score.red}`}
             </p>
-            <button onClick={restart}>Реванш</button>
-            <button onClick={onBack}>На главную</button>
+            <button onClick={restart}>{en?'Rematch':'Реванш'}</button>
+            <button onClick={onBack}>{en?'Home':'На главную'}</button>
           </div>
         )}
       </div>
       <p className={`caps-message caps-message--${turn}`}>{message}</p>
       <div className="caps-rules">
-        <span>👆 {opponent==="friend"?'Игроки ходят по очереди':'Зажми фишку'}</span>
-        <span>↙ Оттяни назад</span>
-        <span>⚡ Первый до 3 голов побеждает</span>
+        <span>👆 {opponent==="friend"?(en?'Take turns':'Игроки ходят по очереди'):(en?'Hold a cap':'Зажми фишку')}</span>
+        <span>↙ {en?'Pull back':'Оттяни назад'}</span>
+        <span>⚡ {en?'First to 3 wins':'Первый до 3 голов побеждает'}</span>
       </div>
     </section>
   );

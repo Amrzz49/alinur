@@ -29,7 +29,7 @@ export type Page = 'home' | 'demo' | 'parent' | 'match' | 'training' | 'games' |
 const trainingChallenges=challenges.slice(0,8);
 
 export default function App() {
-  const [page, setPage] = useState<Page>('welcome');
+  const [page, setPage] = useState<Page>(()=>localStorage.getItem('fieldmind-guest')==='true'?'home':'welcome');
   const [authReady,setAuthReady]=useState(false);
   const [challengeIndex, setChallengeIndex] = useState(0);
   const [selectedChoice, setSelectedChoice] = useState<ChoiceId | null>(null);
@@ -106,14 +106,14 @@ export default function App() {
       {showSaved&&<SavedToast language={settings.language}/>}
       {page!=='welcome'&&<SiteHeader page={page} score={score} coins={coins} playerProgress={playerProgress} settings={settings} equipped={equippedCosmetics} dailyStreak={dailyStreak} claimedToday={claimedToday} userEmail={user?.email} userName={user?.user_metadata.name as string | undefined} userAvatar={user?.user_metadata.avatar_url as string | undefined} isGuest={isGuest&&!user} onGuest={enterAsGuest} onSettingsChange={changeSettings} onProgressChange={setPlayerProgress} onCoinsChange={setCoins} onDailyChange={(streak)=>{setDailyStreak(streak);setClaimedToday(true)}} onSignOut={signOut} onNavigate={setPage} />}
       {page==='welcome'&&<WelcomeScreen language={settings.language} onGuest={enterAsGuest} onEmail={()=>setPage('auth')}/>}
-      {page === 'home' && <HomeScreen language={settings.language} onMatch={()=>setPage('match')} onDemo={()=>setPage('demo')} onExplore={() => setPage('world')} />}
-      {page === 'demo'&&<DemoDayScreen onBack={()=>setPage('home')}/>}
-      {page==='parent'&&<PlayerReport progress={playerProgress} onBack={()=>setPage('home')}/>}
-      {page === 'match' && <FieldCapsMatch cosmetics={equippedCosmetics} onBack={()=>setPage('home')} onWin={()=>{void rewardMatchWin()}}/>}
+      {page === 'home' && <HomeScreen language={settings.language} onMatch={()=>setPage('match')} onDemo={()=>setPage('demo')} />}
+      {page === 'demo'&&<DemoDayScreen language={settings.language} onBack={()=>setPage('home')}/>}
+      {page==='parent'&&<PlayerReport language={settings.language} progress={playerProgress} onBack={()=>setPage('home')}/>}
+      {page === 'match' && <FieldCapsMatch language={settings.language} cosmetics={equippedCosmetics} onBack={()=>setPage('home')} onWin={()=>{void rewardMatchWin()}}/>}
       {page === 'world' && <WorldScreen language={settings.language} />}
-      {page === 'quiz' && <QuizScreen />}
+      {page === 'quiz' && <QuizScreen language={settings.language} />}
       {page === 'games' && <GamesScreen language={settings.language} isGuest={isGuest&&!user} initialProfile={gameProfileReady?{coins:coins??0,unlockedGames,ownedCosmetics,equippedCosmetics}:null} loadError={gameProfileError} onRetry={()=>setProfileReload((value)=>value+1)} onCoinsChange={setCoins} onUnlockedGamesChange={setUnlockedGames} onGameComplete={()=>{void trackActivity('game')}} />}
-      {page === 'shop'&&<ShopScreen coins={coins??0} owned={ownedCosmetics} equipped={equippedCosmetics} isGuest={isGuest&&!user} onChange={updateCosmetics}/>}
+      {page === 'shop'&&<ShopScreen language={settings.language} coins={coins??0} owned={ownedCosmetics} equipped={equippedCosmetics} isGuest={isGuest&&!user} onChange={updateCosmetics}/>}
       {page === 'auth' && <Auth language={settings.language} onGuest={enterAsGuest} />}
       {page === 'training' && (finished ? <GameComplete score={score} total={trainingChallenges.length} decisions={trainingDecisions} patterns={playerProgress.mistakePatterns} language={settings.language} onRestart={restart} /> : (
         <section className="game-layout">

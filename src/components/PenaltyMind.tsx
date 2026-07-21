@@ -16,7 +16,8 @@ const keeperPrediction = (history: Direction[]): Direction => {
   return all[Math.floor(Math.random() * all.length)];
 };
 
-export function PenaltyMind({ onBack, onComplete }: { onBack?: () => void; onComplete?: () => void }) {
+export function PenaltyMind({ language='ru',onBack, onComplete }: { language?:'ru'|'en';onBack?: () => void; onComplete?: () => void }) {
+  const en=language==='en';
   const [selected, setSelected] = useState<Direction>('left');
   const [keeper, setKeeper] = useState<Direction | null>(null);
   const [history, setHistory] = useState<Direction[]>([]);
@@ -25,17 +26,17 @@ export function PenaltyMind({ onBack, onComplete }: { onBack?: () => void; onCom
   const shoot = () => { if (keeper) return; const guess = keeperPrediction(history); setKeeper(guess); setHistory((items) => [...items, selected]); if (guess !== selected) setScore((value) => value + 1); };
   const next = () => { if (round === 5) { onComplete?.(); return setFinished(true); } setRound((value) => value + 1); setKeeper(null); };
   const restart = () => { setSelected('left'); setKeeper(null); setHistory([]); setScore(0); setRound(1); setFinished(false); };
-  const resultTitle = score >= 4 ? 'Мастер пенальти!' : score >= 2 ? 'Хорошая серия!' : 'Старайся лучше!';
-  const resultText = score >= 4 ? 'Ты отлично менял направления и перехитрил вратаря.' : score >= 2 ? 'Неплохой результат. Меняй углы ударов, чтобы стать ещё опаснее.' : 'Вратарь разгадал твои удары. Не повторяй один угол и попробуй ещё раз!';
+  const resultTitle = score >= 4 ? (en?'Penalty master!':'Мастер пенальти!') : score >= 2 ? (en?'Good run!':'Хорошая серия!') : (en?'Keep trying!':'Старайся лучше!');
+  const resultText = score >= 4 ? (en?'You changed direction well and beat the goalkeeper.':'Ты отлично менял направления и перехитрил вратаря.') : score >= 2 ? (en?'Good result. Keep changing corners.':'Неплохой результат. Меняй углы ударов, чтобы стать ещё опаснее.') : (en?'The goalkeeper read your shots. Vary the corner and try again!':'Вратарь разгадал твои удары. Не повторяй один угол и попробуй ещё раз!');
 
-  if (finished) return <section className="penalty-finish">{onBack&&<button className="game-back" onClick={onBack}>← Все игры</button>}<div>{score >= 4 ? '🏆' : score >= 2 ? '⚽' : '💪'}</div><span className="step-label">СЕРИЯ ЗАВЕРШЕНА</span><h1>{resultTitle}</h1><strong>{score} <small>/ 5</small></strong><p>{resultText}</p><button className="play-button" onClick={restart}>Сыграть ещё раз ↻</button></section>;
+  if (finished) return <section className="penalty-finish">{onBack&&<button className="game-back" onClick={onBack}>← {en?'All games':'Все игры'}</button>}<div>{score >= 4 ? '🏆' : score >= 2 ? '⚽' : '💪'}</div><span className="step-label">{en?'SERIES COMPLETE':'СЕРИЯ ЗАВЕРШЕНА'}</span><h1>{resultTitle}</h1><strong>{score} <small>/ 5</small></strong><p>{resultText}</p><button className="play-button" onClick={restart}>{en?'Play again':'Сыграть ещё раз'} ↻</button></section>;
 
-  return <section className="penalty-screen">{onBack&&<button className="game-back" onClick={onBack}>← Все игры</button>}
-    <div className="penalty-heading"><div><div className="eyebrow"><span /> Мини-игра</div><h1>Penalty Mind</h1><p>Выбери угол и перехитри вратаря. Не бей постоянно в одно место!</p></div><div className="penalty-score"><span>Голы</span><strong>{score}</strong><small>Раунд {round} / 5</small></div></div>
+  return <section className="penalty-screen">{onBack&&<button className="game-back" onClick={onBack}>← {en?'All games':'Все игры'}</button>}
+    <div className="penalty-heading"><div><div className="eyebrow"><span /> {en?'Mini-game':'Мини-игра'}</div><h1>Penalty Mind</h1><p>{en?'Pick a corner and outsmart the goalkeeper.':'Выбери угол и перехитри вратаря.'}</p></div><div className="penalty-score"><span>{en?'Goals':'Голы'}</span><strong>{score}</strong><small>{en?'Round':'Раунд'} {round} / 5</small></div></div>
     <div className="penalty-game"><div className="stadium-lights" /><div className="goal"><div className="goal-net" />
       <div className={`keeper ${keeper ? `keeper--${keeper}` : ''}`}><Goalkeeper /></div>
       <div className={`shot-ball ${keeper ? `shot-ball--${selected}` : ''}`}>⚽</div>
-      {keeper && <div className={`goal-result ${isGoal ? 'result--goal' : 'result--save'}`}>{isGoal ? 'ГОООЛ!' : 'СЕЙВ!'}</div>}
-    </div><div className="penalty-spot" /><div className="penalty-controls"><span>Куда бьём?</span><div>{directions.map((direction) => <button className={selected === direction.id ? 'active' : ''} disabled={keeper !== null} onClick={() => setSelected(direction.id)} key={direction.id}><i>{direction.icon}</i>{direction.label}</button>)}</div>{keeper ? <button className="penalty-shoot" onClick={next}>{round === 5 ? 'Результат' : 'Следующий пенальти'} →</button> : <button className="penalty-shoot" onClick={shoot}>Ударить ⚽</button>}</div></div>
+      {keeper && <div className={`goal-result ${isGoal ? 'result--goal' : 'result--save'}`}>{isGoal ? (en?'GOAL!':'ГОООЛ!') : (en?'SAVE!':'СЕЙВ!')}</div>}
+    </div><div className="penalty-spot" /><div className="penalty-controls"><span>{en?'Where will you shoot?':'Куда бьём?'}</span><div>{directions.map((direction) => <button className={selected === direction.id ? 'active' : ''} disabled={keeper !== null} onClick={() => setSelected(direction.id)} key={direction.id}><i>{direction.icon}</i>{en?({left:'Left corner',center:'Centre',right:'Right corner'} as const)[direction.id]:direction.label}</button>)}</div>{keeper ? <button className="penalty-shoot" onClick={next}>{round === 5 ? (en?'Result':'Результат') : (en?'Next penalty':'Следующий пенальти')} →</button> : <button className="penalty-shoot" onClick={shoot}>{en?'Shoot':'Ударить'} ⚽</button>}</div></div>
   </section>;
 }
