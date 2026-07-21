@@ -108,7 +108,7 @@ export default function App() {
       {showSaved&&<SavedToast language={settings.language}/>}
       {page!=='welcome'&&<SiteHeader page={page} score={score} coins={coins} playerProgress={playerProgress} settings={settings} equipped={equippedCosmetics} dailyStreak={dailyStreak} claimedToday={claimedToday} userEmail={user?.email} userName={user?.user_metadata.name as string | undefined} userAvatar={user?.user_metadata.avatar_url as string | undefined} isGuest={isGuest&&!user} onGuest={enterAsGuest} onSettingsChange={changeSettings} onProgressChange={setPlayerProgress} onCoinsChange={setCoins} onDailyChange={(streak)=>{setDailyStreak(streak);setClaimedToday(true)}} onSignOut={signOut} onNavigate={setPage} />}
       {page==='welcome'&&<WelcomeScreen language={settings.language} onGuest={enterAsGuest} onDemo={enterDemoAccount} onEmail={()=>setPage('auth')}/>}
-      {page === 'home' && <HomeScreen language={settings.language} onMatch={()=>setPage('match')} onDemo={()=>setPage('demo')} />}
+      {page === 'home' && <HomeScreen language={settings.language} trainings={playerProgress.totalTrainings} onTraining={()=>setPage('training')} onMatch={()=>setPage('match')} onDemo={()=>setPage('demo')} />}
       {page === 'demo'&&<DemoDayScreen language={settings.language} onBack={()=>setPage('home')} onOpenKit={()=>setPage('demoKit')}/>}
       {page === 'demoKit'&&<DemoKitScreen language={settings.language} onBack={()=>setPage('demo')}/>}
       {page==='parent'&&<PlayerReport language={settings.language} progress={playerProgress} onBack={()=>setPage('home')}/>}
