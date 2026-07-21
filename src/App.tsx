@@ -26,6 +26,7 @@ import { DemoDayScreen } from './components/DemoDayScreen';
 import { PlayerReport } from './components/ParentReport';
 
 export type Page = 'home' | 'demo' | 'parent' | 'match' | 'training' | 'games' | 'shop' | 'quiz' | 'world' | 'auth' | 'welcome';
+const trainingChallenges=challenges.slice(0,8);
 
 export default function App() {
   const [page, setPage] = useState<Page>('welcome');
@@ -49,7 +50,7 @@ export default function App() {
   const [playerProgress,setPlayerProgress]=useState<PlayerProgress>(defaultProgress);
   const [settings,setSettings]=useState<UserSettings>(defaultSettings);
   const [showSaved,setShowSaved]=useState(false);
-  const challenge = localizeChallenge(challenges[challengeIndex],challengeIndex,settings.language);
+  const challenge = localizeChallenge(trainingChallenges[challengeIndex],challengeIndex,settings.language);
 
   useEffect(()=>{
     const acceptUser=(nextUser:User|null,event?:string)=>{setUser(nextUser);if(nextUser){localStorage.removeItem('fieldmind-guest');setIsGuest(false);setPage('home')}else if(event==='SIGNED_OUT')setPage('welcome')};
@@ -84,7 +85,7 @@ export default function App() {
     if (choice === challenge.correctChoice) setScore((current) => current + 1);
   };
   const next = () => {
-    if (challengeIndex === challenges.length - 1) {void trackActivity('training',trainingDecisions);return setFinished(true);}
+    if (challengeIndex === trainingChallenges.length - 1) {void trackActivity('training',trainingDecisions);return setFinished(true);}
     setChallengeIndex((current) => current + 1); setSelectedChoice(null);
   };
   const restart = () => {
@@ -103,7 +104,7 @@ export default function App() {
       {!authReady&&<div className="app-loading" aria-label="Loading"/>}
       {authReady&&<>
       {showSaved&&<SavedToast language={settings.language}/>}
-      {page!=='welcome'&&<SiteHeader page={page} score={score} coins={coins} playerProgress={playerProgress} settings={settings} equipped={equippedCosmetics} dailyStreak={dailyStreak} claimedToday={claimedToday} progress={`${challengeIndex + 1} / ${challenges.length}`} userEmail={user?.email} userName={user?.user_metadata.name as string | undefined} userAvatar={user?.user_metadata.avatar_url as string | undefined} isGuest={isGuest&&!user} onGuest={enterAsGuest} onSettingsChange={changeSettings} onProgressChange={setPlayerProgress} onCoinsChange={setCoins} onDailyChange={(streak)=>{setDailyStreak(streak);setClaimedToday(true)}} onSignOut={signOut} onNavigate={setPage} />}
+      {page!=='welcome'&&<SiteHeader page={page} score={score} coins={coins} playerProgress={playerProgress} settings={settings} equipped={equippedCosmetics} dailyStreak={dailyStreak} claimedToday={claimedToday} progress={`${challengeIndex + 1} / ${trainingChallenges.length}`} userEmail={user?.email} userName={user?.user_metadata.name as string | undefined} userAvatar={user?.user_metadata.avatar_url as string | undefined} isGuest={isGuest&&!user} onGuest={enterAsGuest} onSettingsChange={changeSettings} onProgressChange={setPlayerProgress} onCoinsChange={setCoins} onDailyChange={(streak)=>{setDailyStreak(streak);setClaimedToday(true)}} onSignOut={signOut} onNavigate={setPage} />}
       {page==='welcome'&&<WelcomeScreen language={settings.language} onGuest={enterAsGuest} onEmail={()=>setPage('auth')}/>}
       {page === 'home' && <HomeScreen language={settings.language} onMatch={()=>setPage('match')} onDemo={()=>setPage('demo')} onExplore={() => setPage('world')} />}
       {page === 'demo'&&<DemoDayScreen onBack={()=>setPage('home')}/>}
@@ -114,7 +115,7 @@ export default function App() {
       {page === 'games' && <GamesScreen language={settings.language} isGuest={isGuest&&!user} initialProfile={gameProfileReady?{coins:coins??0,unlockedGames,ownedCosmetics,equippedCosmetics}:null} loadError={gameProfileError} onRetry={()=>setProfileReload((value)=>value+1)} onCoinsChange={setCoins} onUnlockedGamesChange={setUnlockedGames} onGameComplete={()=>{void trackActivity('game')}} />}
       {page === 'shop'&&<ShopScreen coins={coins??0} owned={ownedCosmetics} equipped={equippedCosmetics} isGuest={isGuest&&!user} onChange={updateCosmetics}/>}
       {page === 'auth' && <Auth language={settings.language} onGuest={enterAsGuest} />}
-      {page === 'training' && (finished ? <GameComplete score={score} total={challenges.length} decisions={trainingDecisions} patterns={playerProgress.mistakePatterns} language={settings.language} onRestart={restart} /> : (
+      {page === 'training' && (finished ? <GameComplete score={score} total={trainingChallenges.length} decisions={trainingDecisions} patterns={playerProgress.mistakePatterns} language={settings.language} onRestart={restart} /> : (
         <section className="game-layout">
           <div className="field-column">
             <div className="eyebrow"><span /> {challenge.difficulty}</div><h1>{challenge.title}</h1>
