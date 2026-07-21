@@ -18,6 +18,7 @@ const exercises:Record<ChoiceId,{ru:string;en:string}>={
   shot:{ru:'10 минут: ищи открытую линию удара и принимай решение за два касания.',en:'10 minutes: find an open shooting lane and decide within two touches.'},
 };
 const frequentMistake=(patterns:MistakePatterns)=>Object.entries(patterns).sort((a,b)=>b[1]-a[1])[0] as [ChoiceId,number];
+const withTimeout=<T>(request:Promise<T>,milliseconds=12000)=>Promise.race([request,new Promise<never>((_,reject)=>window.setTimeout(()=>reject(new Error('AI timeout')),milliseconds))]);
 
 export function getFallbackCoachAnalysis(decisions:TrainingDecision[],score:number,total:number,patterns:MistakePatterns,language:'ru'|'en'){
   const en=language==='en',accuracy=total?Math.round(score/total*100):0;
@@ -31,7 +32,7 @@ export function getFallbackCoachAnalysis(decisions:TrainingDecision[],score:numb
 export async function getAiCoachAnalysis(decisions:TrainingDecision[],score:number,total:number,patterns:MistakePatterns,language:'ru'|'en'='ru'):Promise<string>{
   const details=decisions.map((item,index)=>`${index+1}. ${item.title} (${item.difficulty}): игрок выбрал «${choiceName(item.selected)}», правильный ответ — «${choiceName(item.correct)}».`).join('\n');
   const prompt=`Результат: ${score} из ${total}. История ошибок: ${JSON.stringify(patterns)}.\nРешения:\n${details}\n\nОтветь на ${language==='en'?'английском':'русском'}: ровно 2 коротких простых предложения. Первое — что получилось и какая ошибка повторяется. Второе — одно конкретное упражнение на 10 минут. Не выдумывай данные.`;
-  const {data,error}=await supabase.functions.invoke('ai',{body:{prompt,system:`Ты доброжелательный профессиональный футбольный тренер. Отвечай только на ${language==='en'?'английском':'русском'} языке, кратко и понятно.`}});
+  const {data,error}=await withTimeout(supabase.functions.invoke('ai',{body:{prompt,system:`Ты доброжелательный профессиональный футбольный тренер. Отвечай только на ${language==='en'?'английском':'русском'} языке, кратко и понятно.`}}));
   if(error)throw new Error('AI-тренер сейчас недоступен. Попробуй немного позже.');
   const response=data as {text?:string;error?:string}|null;
   if(!response?.text)throw new Error(response?.error||'AI-тренер не получил ответ.');
@@ -41,7 +42,7 @@ export async function getAiCoachAnalysis(decisions:TrainingDecision[],score:numb
 export async function getWeeklyPlayerAdvice(progress:{totalTrainings:number;correctDecisions:number;totalDecisions:number;skills:Record<string,number>},language:'ru'|'en'='ru'):Promise<string>{
   const accuracy=progress.totalDecisions?Math.round(progress.correctDecisions/progress.totalDecisions*100):0;
   const prompt=`Player stats: trainings ${progress.totalTrainings}, decision accuracy ${accuracy}%, skills ${JSON.stringify(progress.skills)}. Address the player directly and give one safe weekly focus plus one 10-minute exercise. Maximum 2 short sentences in ${language==='en'?'English':'Russian'}.`;
-  const {data,error}=await supabase.functions.invoke('ai',{body:{prompt,system:`You are a friendly football coach for a young player. Answer briefly in ${language==='en'?'English':'Russian'}.`}});
+  const {data,error}=await withTimeout(supabase.functions.invoke('ai',{body:{prompt,system:`You are a friendly football coach for a young player. Answer briefly in ${language==='en'?'English':'Russian'}.`}}));
   const response=data as {text?:string}|null;
   if(error||!response?.text)throw new Error('AI-тренер сейчас недоступен.');
   return response.text;

@@ -55,7 +55,7 @@ export default function App() {
 
   useEffect(()=>{
     const acceptUser=(nextUser:User|null,event?:string)=>{setUser(nextUser);if(nextUser){localStorage.removeItem('fieldmind-guest');setIsGuest(false);setPage('home')}else if(event==='SIGNED_OUT')setPage('welcome')};
-    supabase.auth.getUser().then(({data})=>acceptUser(data.user)).finally(()=>setAuthReady(true));
+    supabase.auth.getSession().then(({data})=>acceptUser(data.session?.user??null)).finally(()=>setAuthReady(true));
     const {data}=supabase.auth.onAuthStateChange((event,session)=>acceptUser(session?.user??null,event));
     return ()=>data.subscription.unsubscribe();
   },[]);
