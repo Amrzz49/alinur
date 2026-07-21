@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Goalkeeper } from "./Goalkeeper";
+import { MiniGameCoach } from "./MiniGameCoach";
 
 type Direction = "left" | "center" | "right";
 const directions: { id: Direction; label: string; icon: string }[] = [
@@ -147,6 +148,13 @@ export function GoalkeeperIQ({
           )}
         </div>
         <div className="penalty-spot" />
+        {shot && !isSave && (
+          <MiniGameCoach
+            language={language}
+            mistake={en ? `You dived ${labels[choice].toLowerCase()}, but the shot went ${labels[shot].toLowerCase()}.` : `Ты выбрал «${labels[choice]}», но удар пошёл в другое направление.`}
+            correctPlay={en ? "Read the final step of the run-up and delay your dive." : "Следи за последним шагом разбега и не прыгай слишком рано."}
+          />
+        )}
         <div className="striker-cue">
           🏃 {en ? "Run-up points" : "Разбег направлен"}{" "}
           <strong>

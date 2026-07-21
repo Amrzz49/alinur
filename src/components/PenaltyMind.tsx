@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Goalkeeper } from './Goalkeeper';
+import { MiniGameCoach } from './MiniGameCoach';
 
 type Direction = 'left' | 'center' | 'right';
 const allDirections:Direction[]=['left','center','right'];
@@ -39,6 +40,6 @@ export function PenaltyMind({ language='ru',onBack, onComplete }: { language?:'r
       <div className={`keeper ${keeper ? `keeper--${keeper}` : ''}`}><Goalkeeper /></div>
       <div className={`shot-ball ${keeper ? `shot-ball--${selected}` : ''}`}>⚽</div>
       {keeper && <div className={`goal-result ${isGoal ? 'result--goal' : 'result--save'}`}>{isGoal ? (en?'GOAL!':'ГОООЛ!') : (en?'SAVE!':'СЕЙВ!')}</div>}
-    </div><div className="penalty-spot" /><div className="keeper-read">👀 {en?'Keeper leans':'Вратарь смещается'}: <strong>{en?({left:'LEFT',center:'CENTRE',right:'RIGHT'} as const)[keeperRead]:({left:'ВЛЕВО',center:'В ЦЕНТР',right:'ВПРАВО'} as const)[keeperRead]}</strong><small>{en?'He may bluff':'Он может обмануть'}</small></div><div className="penalty-controls"><span>{en?'Where will you shoot?':'Куда бьём?'}</span><div>{directions.map((direction) => <button className={selected === direction.id ? 'active' : ''} disabled={keeper !== null} onClick={() => setSelected(direction.id)} key={direction.id}><i>{direction.icon}</i>{en?({left:'Left corner',center:'Centre',right:'Right corner'} as const)[direction.id]:direction.label}</button>)}</div>{keeper ? <button className="penalty-shoot" onClick={next}>{round === 5 ? (en?'Result':'Результат') : (en?'Next penalty':'Следующий пенальти')} →</button> : <button className="penalty-shoot" onClick={shoot}>{en?'Shoot':'Ударить'} ⚽</button>}</div></div>
+    </div><div className="penalty-spot" />{keeper&&!isGoal&&<MiniGameCoach language={language} mistake={en?'The goalkeeper read your chosen corner.':'Вратарь прочитал выбранный тобой угол.'} correctPlay={en?'Notice the goalkeeper’s lean and vary your previous shots.':'Смотри на движение вратаря и не повторяй прошлые удары.'}/>}<div className="keeper-read">👀 {en?'Keeper leans':'Вратарь смещается'}: <strong>{en?({left:'LEFT',center:'CENTRE',right:'RIGHT'} as const)[keeperRead]:({left:'ВЛЕВО',center:'В ЦЕНТР',right:'ВПРАВО'} as const)[keeperRead]}</strong><small>{en?'He may bluff':'Он может обмануть'}</small></div><div className="penalty-controls"><span>{en?'Where will you shoot?':'Куда бьём?'}</span><div>{directions.map((direction) => <button className={selected === direction.id ? 'active' : ''} disabled={keeper !== null} onClick={() => setSelected(direction.id)} key={direction.id}><i>{direction.icon}</i>{en?({left:'Left corner',center:'Centre',right:'Right corner'} as const)[direction.id]:direction.label}</button>)}</div>{keeper ? <button className="penalty-shoot" onClick={next}>{round === 5 ? (en?'Result':'Результат') : (en?'Next penalty':'Следующий пенальти')} →</button> : <button className="penalty-shoot" onClick={shoot}>{en?'Shoot':'Ударить'} ⚽</button>}</div></div>
   </section>;
 }

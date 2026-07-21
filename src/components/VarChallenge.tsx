@@ -6,6 +6,7 @@ import {
   varDecisionLabelsEn,
   type VarDecision,
 } from "../lib/varChallenges";
+import { MiniGameCoach } from "./MiniGameCoach";
 
 type Props = {
   language: "ru" | "en";
@@ -155,6 +156,13 @@ export function VarChallenge({ language, onBack, onComplete }: Props) {
                     : "Решение изменено VAR"}
               </strong>
               <p>{challenge.explanation}</p>
+              {selected !== challenge.decision && (
+                <MiniGameCoach
+                  language={language}
+                  mistake={en ? `Your verdict was “${decisionLabels[selected]}”.` : `Твой вердикт: «${decisionLabels[selected]}».`}
+                  correctPlay={en ? `The correct verdict is “${decisionLabels[challenge.decision]}”. Check the replay detail in the explanation.` : `Правильный вердикт: «${decisionLabels[challenge.decision]}». Проверь ключевую деталь в объяснении.`}
+                />
+              )}
               <button onClick={next}>
                 {index === challenges.length - 1
                   ? en

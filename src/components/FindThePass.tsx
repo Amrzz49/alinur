@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { MiniGameCoach } from "./MiniGameCoach";
 
 type Target = { id: number; x: number; y: number };
 type Round = {
@@ -278,6 +279,13 @@ export function FindThePass({
                   ? "That lane was blocked. Find another teammate."
                   : "Соперник перекрывал эту линию. Ищи другого партнёра."}
           </p>
+          {selected !== null && !isCorrect && (
+            <MiniGameCoach
+              language={language}
+              mistake={en ? "You passed through a blocked lane." : "Ты отдал пас через перекрытую линию."}
+              correctPlay={en ? `Choose player ${round.correct}, whose passing lane is open.` : `Выбери игрока ${round.correct}: линия паса к нему свободна.`}
+            />
+          )}
           {selected && (
             <button className="penalty-shoot" onClick={next}>
               {index === 4

@@ -47,3 +47,11 @@ export async function getWeeklyPlayerAdvice(progress:{totalTrainings:number;corr
   if(error||!response?.text)throw new Error('AI-тренер сейчас недоступен.');
   return response.text;
 }
+
+export async function getMiniGameCoachTip(mistake:string,correctPlay:string,language:'ru'|'en'):Promise<string>{
+  const prompt=`Mistake: ${mistake}\nBetter decision: ${correctPlay}\nExplain why the move failed and what to do next time. Use exactly 2 short sentences in ${language==='en'?'English':'Russian'}. No greeting.`;
+  const {data,error}=await withTimeout(supabase.functions.invoke('ai',{body:{prompt,system:`You are a friendly football coach for a young player. Give specific, encouraging tactical feedback in ${language==='en'?'English':'Russian'}.`}}),6000);
+  const response=data as {text?:string}|null;
+  if(error||!response?.text)throw new Error('AI coach unavailable');
+  return response.text;
+}

@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react';
 import { playerStats, squadPlayers, type DuelStat, type SquadPlayer, type SquadPosition } from '../lib/squadPlayers';
 import { SquadCard } from './SquadCard';
+import { MiniGameCoach } from './MiniGameCoach';
 
 const needs:Record<SquadPosition,number>={GK:1,DEF:4,MID:3,ATT:3};
 const statNames:Record<DuelStat,string>={attack:'АТАКА',control:'КОНТРОЛЬ',defence:'ЗАЩИТА'};
@@ -50,7 +51,7 @@ export function SquadBattle({language,team,onBack,onComplete}:{language:'ru'|'en
     <div className="duel-picker-label">{aiChooses?(en?'AI CHOOSES THE STAT':'ХАРАКТЕРИСТИКУ ВЫБИРАЕТ AI'):(en?'YOU CHOOSE THE STAT':'ХАРАКТЕРИСТИКУ ВЫБИРАЕШЬ ТЫ')}</div>
     <nav className={`fatal-stats ${aiChooses?'ai-turn':''}`}>{(Object.keys(statNames) as DuelStat[]).map((item)=><button className={stat===item?'active':''} disabled={aiChooses} onClick={()=>setStat(item)} key={item}>{en?item.toUpperCase():statNames[item]}</button>)}</nav>
     {lastDuel && (
-      <DuelResult duel={lastDuel} language={language}/>
+      <><DuelResult duel={lastDuel} language={language}/>{lastDuel.mineValue<lastDuel.enemyValue&&<MiniGameCoach language={language} mistake={en?`Your ${lastDuel.stat} rating was ${lastDuel.mineValue}, below the opponent's ${lastDuel.enemyValue}.`:`Твоя характеристика «${statNames[lastDuel.stat]}» — ${lastDuel.mineValue}, у соперника — ${lastDuel.enemyValue}.`} correctPlay={en?'Compare the highlighted stat and choose your strongest unused card.':'Сравни выделенную характеристику и выбери самую сильную неиспользованную карточку.'}/>}</>
     )}
     <div className="fatal-squads">
       <CardTeam title={en?'YOUR CARDS':'ТВОИ КАРТОЧКИ'} players={team} selected={mine} used={usedMine} stat={stat} onPick={setMine}/>
