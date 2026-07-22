@@ -30,7 +30,7 @@ export type Page = 'home' | 'demo' | 'demoKit' | 'parent' | 'match' | 'training'
 const trainingChallenges=challenges.slice(0,8);
 
 export default function App() {
-  const [page, setPage] = useState<Page>(()=>localStorage.getItem('fieldmind-guest')==='true'?'home':'welcome');
+  const [page, setPage] = useState<Page>(()=>new URLSearchParams(window.location.search).get('presentation')==='1'?'demoKit':localStorage.getItem('fieldmind-guest')==='true'?'home':'welcome');
   const [authReady,setAuthReady]=useState(false);
   const [challengeIndex, setChallengeIndex] = useState(0);
   const [selectedChoice, setSelectedChoice] = useState<ChoiceId | null>(null);
