@@ -3,3 +3,4 @@
 .keeper-svg{filter:drop-shadow(0 9px 6px rgba(0,0,0,.38)) saturate(1.08)}.goal-result{box-shadow:0 8px 25px rgba(0,0,0,.35)}.penalty-shoot:hover{transform:translateY(-2px);filter:brightness(1.12)}
 .penalty-game .stadium-crowd,.penalty-game .pitch-stripes{pointer-events:none}.penalty-game .keeper-read,.penalty-game .striker-cue,.penalty-game .penalty-controls,.penalty-game .mini-game-coach{position:relative;z-index:6}
 .keeper-svg{object-fit:contain;filter:drop-shadow(0 9px 6px rgba(0,0,0,.45)) saturate(1.05);user-select:none}
+.penalty-game .keeper{width:175px;height:190px;bottom:3px}@media(max-width:650px){.penalty-game .keeper{width:132px;height:150px;bottom:2px}}
