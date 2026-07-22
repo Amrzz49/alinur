@@ -27,7 +27,7 @@ import { PlayerReport } from './components/ParentReport';
 import { DemoKitScreen } from './components/DemoKitScreen';
 
 export type Page = 'home' | 'demo' | 'demoKit' | 'parent' | 'match' | 'training' | 'games' | 'shop' | 'quiz' | 'world' | 'auth' | 'welcome';
-const trainingChallenges=challenges.slice(0,8);
+const trainingChallenges=challenges.slice(0,4);
 
 export default function App() {
   const [page, setPage] = useState<Page>(()=>new URLSearchParams(window.location.search).get('presentation')==='1'?'demoKit':localStorage.getItem('fieldmind-guest')==='true'?'home':'welcome');
