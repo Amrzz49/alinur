@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { FindThePass } from "./FindThePass";
-import { GoalkeeperIQ } from "./GoalkeeperIQ";
 import { PenaltyMind } from "./PenaltyMind";
 import { SquadBuilder } from "./SquadBuilder";
 import { VarChallenge } from "./VarChallenge";
@@ -8,12 +7,11 @@ import { saveGameProfile, type GameProfile } from "../lib/gameWallet";
 import { loadGuestProfile, saveGuestProfile } from "../lib/guestProfile";
 import { StatusState } from "./StatusState";
 import penaltyCover from "../assets/game-covers/penalty.jpg";
-import goalkeeperCover from "../assets/game-covers/goalkeeper.jpg";
 import passCover from "../assets/game-covers/find-pass.jpg";
 import squadCover from "../assets/game-covers/squad.jpg";
 import varCover from "../assets/game-covers/var.jpg";
 
-type Game = "menu" | "penalty" | "goalkeeper" | "pass" | "squad" | "var";
+type Game = "menu" | "penalty" | "pass" | "squad" | "var";
 type GameCard = {
   id: Game;
   role: string;
@@ -36,17 +34,6 @@ const games: GameCard[] = [
     text: "Перехитри вратаря и забей как можно больше пенальти.",
     textEn: "Outsmart the goalkeeper and score as many penalties as possible.",
     cover: penaltyCover,
-  },
-  {
-    id: "goalkeeper",
-    role: "ВРАТАРЬ",
-    roleEn: "GOALKEEPER",
-    title: "Goalkeeper IQ",
-    titleRu: "IQ вратаря",
-    text: "Угадывай направление удара и защищай свои ворота.",
-    textEn: "Read the shot direction and protect your goal.",
-    cover: goalkeeperCover,
-    price: 100,
   },
   {
     id: "pass",
@@ -194,10 +181,6 @@ export function GamesScreen({
   if (game === "penalty")
     return (
       <PenaltyMind language={language} onBack={back} onComplete={reward} />
-    );
-  if (game === "goalkeeper")
-    return (
-      <GoalkeeperIQ language={language} onBack={back} onComplete={reward} />
     );
   if (game === "pass")
     return (

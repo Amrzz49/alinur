@@ -7,7 +7,7 @@ const demoKey='fieldmind-demo-profile';
 const activeKey=()=>localStorage.getItem('fieldmind-demo')==='true'?demoKey:guestKey;
 const today=()=>new Date().toISOString().slice(0,10);
 const initial:GuestProfile={coins:0,unlockedGames:[],ownedCosmetics:[...defaultOwned],equippedCosmetics:{...defaultEquipped},dailyStreak:0,lastDailyReward:null,dailyTaskDate:today(),progress:{...defaultProgress,skills:{...defaultProgress.skills},dailyTasks:{...defaultProgress.dailyTasks},mistakePatterns:{...defaultProgress.mistakePatterns}}};
-const demo:GuestProfile={coins:760,unlockedGames:['goalkeeper','pass','squad','var'],ownedCosmetics:[...defaultOwned,'ball_gold','kit_white','stadium_night','frame_gold'],equippedCosmetics:{ball:'ball_gold',kit:'kit_white',stadium:'stadium_night',frame:'frame_gold'},dailyStreak:6,lastDailyReward:today(),dailyTaskDate:today(),progress:{xp:1680,skills:{vision:78,passing:74,shooting:63,dribbling:69},dailyTasks:{training:1,games:2,wins:1},dailyRewardClaimed:false,totalTrainings:14,correctDecisions:73,totalDecisions:96,mistakePatterns:{left:2,right:5,dribble:3,shot:4}}};
+const demo:GuestProfile={coins:760,unlockedGames:['pass','squad','var'],ownedCosmetics:[...defaultOwned,'ball_gold','kit_white','stadium_night','frame_gold'],equippedCosmetics:{ball:'ball_gold',kit:'kit_white',stadium:'stadium_night',frame:'frame_gold'},dailyStreak:6,lastDailyReward:today(),dailyTaskDate:today(),progress:{xp:1680,skills:{vision:78,passing:74,shooting:63,dribbling:69},dailyTasks:{training:1,games:2,wins:1},dailyRewardClaimed:false,totalTrainings:14,correctDecisions:73,totalDecisions:96,mistakePatterns:{left:2,right:5,dribble:3,shot:4}}};
 
 export function loadGuestProfile():GuestProfile{
   const saved=localStorage.getItem(activeKey());
