@@ -2,11 +2,11 @@ import { defaultProgress, type Activity, type PlayerProgress, type Skills } from
 import { defaultEquipped,defaultOwned,type EquippedCosmetics } from './cosmetics';
 
 export type GuestProfile={coins:number;unlockedGames:string[];ownedCosmetics:string[];equippedCosmetics:EquippedCosmetics;dailyStreak:number;lastDailyReward:string|null;dailyTaskDate:string;progress:PlayerProgress};
-const guestKey='fieldmind-guest-profile';
+const guestKey='fieldmind-guest-profile-v2';
 const demoKey='fieldmind-demo-profile';
 const activeKey=()=>localStorage.getItem('fieldmind-demo')==='true'?demoKey:guestKey;
 const today=()=>new Date().toISOString().slice(0,10);
-const initial:GuestProfile={coins:150,unlockedGames:[],ownedCosmetics:defaultOwned,equippedCosmetics:defaultEquipped,dailyStreak:0,lastDailyReward:null,dailyTaskDate:today(),progress:defaultProgress};
+const initial:GuestProfile={coins:0,unlockedGames:[],ownedCosmetics:[...defaultOwned],equippedCosmetics:{...defaultEquipped},dailyStreak:0,lastDailyReward:null,dailyTaskDate:today(),progress:{...defaultProgress,skills:{...defaultProgress.skills},dailyTasks:{...defaultProgress.dailyTasks},mistakePatterns:{...defaultProgress.mistakePatterns}}};
 const demo:GuestProfile={coins:760,unlockedGames:['goalkeeper','pass','squad','var'],ownedCosmetics:[...defaultOwned,'ball_gold','kit_white','stadium_night','frame_gold'],equippedCosmetics:{ball:'ball_gold',kit:'kit_white',stadium:'stadium_night',frame:'frame_gold'},dailyStreak:6,lastDailyReward:today(),dailyTaskDate:today(),progress:{xp:1680,skills:{vision:78,passing:74,shooting:63,dribbling:69},dailyTasks:{training:1,games:2,wins:1},dailyRewardClaimed:false,totalTrainings:14,correctDecisions:73,totalDecisions:96,mistakePatterns:{left:2,right:5,dribble:3,shot:4}}};
 
 export function loadGuestProfile():GuestProfile{
@@ -18,6 +18,8 @@ export function loadGuestProfile():GuestProfile{
 export function saveGuestProfile(profile:GuestProfile){localStorage.setItem(activeKey(),JSON.stringify(profile))}
 
 export function createDemoProfile(){localStorage.setItem(demoKey,JSON.stringify(demo));return demo}
+
+export function activeGuestSettingsKey(){return localStorage.getItem('fieldmind-demo')==='true'?'fieldmind-demo-settings':'fieldmind-guest-settings-v2'}
 
 export function claimGuestReward():GuestProfile{
   const profile=loadGuestProfile();
