@@ -32,6 +32,8 @@ export function GoalkeeperIQ({
   const [shot, setShot] = useState<Direction | null>(null);
   const [cue, setCue] = useState<Direction>(randomShot);
   const [saves, setSaves] = useState(0);
+  const [streak, setStreak] = useState(0);
+  const [bestStreak, setBestStreak] = useState(0);
   const [round, setRound] = useState(1);
   const [finished, setFinished] = useState(false);
   const isSave = shot !== null && shot === choice;
@@ -39,10 +41,15 @@ export function GoalkeeperIQ({
     if (shot) return;
     const nextShot = shotFromCue(cue);
     setShot(nextShot);
-    if (nextShot === choice) setSaves((value) => value + 1);
+    if (nextShot === choice) {
+      const nextStreak = streak + 1;
+      setSaves((value) => value + 1);
+      setStreak(nextStreak);
+      setBestStreak((value) => Math.max(value, nextStreak));
+    } else setStreak(0);
   };
   const next = () => {
-    if (round === 5) {
+    if (round === 7) {
       onComplete?.();
       return setFinished(true);
     }
@@ -55,6 +62,8 @@ export function GoalkeeperIQ({
     setShot(null);
     setCue(randomShot());
     setSaves(0);
+    setStreak(0);
+    setBestStreak(0);
     setRound(1);
     setFinished(false);
   };
@@ -69,16 +78,16 @@ export function GoalkeeperIQ({
         <button className="game-back" onClick={onBack}>
           ← {en ? "All games" : "Все игры"}
         </button>
-        <div>{saves >= 4 ? "🏆" : saves >= 2 ? "🧤" : "💪"}</div>
+        <div>{saves >= 5 ? "🏆" : saves >= 3 ? "🧤" : "💪"}</div>
         <span className="step-label">
           {en ? "MATCH COMPLETE" : "МАТЧ ЗАВЕРШЁН"}
         </span>
         <h1>
-          {saves >= 4
+          {saves >= 5
             ? en
               ? "A wall in goal!"
               : "Стена в воротах!"
-            : saves >= 2
+            : saves >= 3
               ? en
                 ? "Great game!"
                 : "Хорошая игра!"
@@ -88,16 +97,17 @@ export function GoalkeeperIQ({
         </h1>
         <strong>
           {saves}
-          <small>/ 5 {en ? "saves" : "сейвов"}</small>
+          <small>/ 7 {en ? "saves" : "сейвов"}</small>
         </strong>
         <p>
-          {saves >= 4
+          {saves >= 5
             ? en
               ? "You read the shots brilliantly."
               : "Ты отлично читаешь удары соперника."
             : en
               ? "Watch the striker and time your dive."
-              : "Следи за разбегом нападающего и меняй направление прыжка."}
+              : "Следи за разбегом нападающего и меняй направление прыжка."}<br />
+          🔥 {en ? "Best streak" : "Лучшая серия"}: {bestStreak}
         </p>
         <button className="play-button" onClick={restart}>
           {en ? "Play again" : "Сыграть ещё раз"} ↻
@@ -125,12 +135,14 @@ export function GoalkeeperIQ({
           <span>{en ? "Saves" : "Сейвы"}</span>
           <strong>{saves}</strong>
           <small>
-            {en ? "Round" : "Раунд"} {round} / 5
+            {en ? "Round" : "Раунд"} {round} / 7 · 🔥 {streak}
           </small>
         </div>
       </div>
       <div className="penalty-game keeper-arena">
+        <div className="stadium-crowd" />
         <div className="stadium-lights" />
+        <div className="pitch-stripes" />
         <div className="goal">
           <div className="goal-net" />
           <div className={`keeper ${shot ? `keeper--${choice}` : ""}`}>
@@ -143,7 +155,7 @@ export function GoalkeeperIQ({
             <div
               className={`goal-result ${isSave ? "result--goal" : "result--save"}`}
             >
-              {isSave ? (en ? "SAVE!" : "СЕЙВ!") : en ? "GOAL!" : "ГОЛ!"}
+              {isSave ? (streak >= 2 ? `🔥 x${streak}` : en ? "SAVE!" : "СЕЙВ!") : en ? "GOAL!" : "ГОЛ!"}
             </div>
           )}
         </div>
@@ -185,7 +197,7 @@ export function GoalkeeperIQ({
           </div>
           {shot ? (
             <button className="penalty-shoot" onClick={next}>
-              {round === 5
+              {round === 7
                 ? en
                   ? "Results"
                   : "Результат"
